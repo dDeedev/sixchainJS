@@ -1,4 +1,4 @@
-# @thesixnetwork/sixchain-sdk
+# @dDeedev/sixchain-sdk
 
 <p align="center">
   <a href="https://github.com/thesixnetwork/sixchain-sdk">
@@ -17,11 +17,11 @@
 ## install
 
 ```sh
-npm install @thesixnetwork/sixchain-sdk
+npm install @dDeedev/sixchain-sdk
 ```
 ## Table of contents
 
-- [@thesixnetwork/sixchain-sdk](#@thesixnetwork/sixchain-sdk)
+- [@dDeedev/sixchain-sdk](#@dDeedev/sixchain-sdk)
   - [Install](#install)
   - [Table of contents](#table-of-contents)
 - [Usage](#usage)
@@ -46,7 +46,7 @@ npm install @thesixnetwork/sixchain-sdk
 ### RPC Clients
 
 ```js
-import { six } from '@thesixnetwork/sixchain-sdk';
+import { six } from '@dDeedev/sixchain-sdk';
 
 const { createRPCQueryClient } = six.ClientFactory; 
 const client = await createRPCQueryClient({ rpcEndpoint: RPC_ENDPOINT });
@@ -62,10 +62,10 @@ const balances = await client.six.exchange.v1beta1
 
 ### Composing Messages
 
-Import the `six` object from `@thesixnetwork/sixchain-sdk`. 
+Import the `six` object from `@dDeedev/sixchain-sdk`. 
 
 ```js
-import { six } from '@thesixnetwork/sixchain-sdk';
+import { six } from '@dDeedev/sixchain-sdk';
 
 const {
     createSpotLimitOrder,
@@ -77,7 +77,7 @@ const {
 #### CosmWasm Messages
 
 ```js
-import { cosmwasm } from "@thesixnetwork/sixchain-sdk";
+import { cosmwasm } from "@dDeedev/sixchain-sdk";
 
 const {
     clearAdmin,
@@ -92,7 +92,7 @@ const {
 #### IBC Messages
 
 ```js
-import { ibc } from '@thesixnetwork/sixchain-sdk';
+import { ibc } from '@dDeedev/sixchain-sdk';
 
 const {
     transfer
@@ -102,7 +102,7 @@ const {
 #### Cosmos Messages
 
 ```js
-import { cosmos } from '@thesixnetwork/sixchain-sdk';
+import { cosmos } from '@dDeedev/sixchain-sdk';
 
 const {
     fundCommunityPool,
@@ -270,7 +270,7 @@ yarn build
 
 ### Codegen
 
-Look inside of `scripts/codegen.ts` and configure the settings for bundling your SDK and contracts into `@thesixnetwork/sixchain-sdk`:
+Look inside of `scripts/codegen.ts` and configure the settings for bundling your SDK and contracts into `@dDeedev/sixchain-sdk`:
 
 ```
 yarn codegen

@@ -1,0 +1,42 @@
+{
+  "name": "extend_privilege",
+  "desc": "Use for update tier of user",
+  "params": [
+    {
+      "name": "group_one",
+      "desc": "Amount of Group on to be increase",
+      "data_type": "number",
+      "required": true,
+      "default_value": ""
+    },
+    {
+      "name": "group_two",
+      "desc": "Amount of Group on to be increase",
+      "data_type": "number",
+      "required": true,
+      "default_value": ""
+    },
+    {
+      "name": "group_three",
+      "desc": "Amount of Group on to be increase",
+      "data_type": "number",
+      "required": true,
+      "default_value": ""
+    },
+    {
+      "name": "expire_date",
+      "desc": "set expire date of Privileges",
+      "data_type": "string",
+      "required": true,
+      "default_value": ""
+    }
+  ],
+  "when": "true",
+  "then": [
+    "group_one = params['group_one'].GetNumber()",
+    "group_two = params['group_two'].GetNumber()",
+    "meta.SetString('expire_date', params['expire_date'].GetString())",
+    "meta.SetNumber('service_1', meta.GetNumber('service_1') + group_one)",
+    "meta.SetNumber('service_2', meta.GetNumber('service_2') + group_two)"
+  ]
+}

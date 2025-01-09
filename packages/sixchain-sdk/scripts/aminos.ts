@@ -1,0 +1,3 @@
+export const AMINO_MAP = {
+  // PUT YOUR AMINO names here...
+};

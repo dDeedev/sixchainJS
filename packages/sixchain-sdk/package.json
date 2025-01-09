@@ -1,0 +1,44 @@
+{
+  "name": "@thesixnetwork/sixchain-sdk",
+  "version": "2.0.3",
+  "author": "sixnetwork <hamdee@six.network>",
+  "description": "SIX Protocol sdk",
+  "main": "index.js",
+  "module": "esm/index.js",
+  "types": "index.d.ts",
+  "homepage": "https://github.com/thesixnetwork/sixchain-sdk",
+  "license": "SEE LICENSE IN LICENSE",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thesixnetwork/sixchain-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/thesixnetwork/sixchain-sdk/issues"
+  },
+  "scripts": {
+    "copy": "copyfiles -f ../../LICENSE README.md package.json dist",
+    "clean": "rimraf dist/**",
+    "prepare": "npm run build",
+    "codegen": "ts-node scripts/codegen.ts",
+    "build": "npm run clean; tsc; tsc -p tsconfig.esm.json; npm run copy",
+    "lint": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@cosmology/telescope": "^1.0.1"
+  },
+  "dependencies": {
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/encoding": "0.32.3",
+    "@cosmjs/math": "0.32.3",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4"
+  },
+  "keywords": [],
+  "gitHead": "8ff4575fa64ac3e210a91354e4131425374d2814"
+}

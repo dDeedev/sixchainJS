@@ -1,0 +1,25 @@
+{
+  "name": "set_service",
+  "desc": "To recover state of service",
+  "params": [
+    {
+      "name": "service_name",
+      "desc": "Service",
+      "data_type": "string",
+      "required": true,
+      "default_value": ""
+    },
+    {
+      "name": "amount",
+      "desc": "Amount of service to set",
+      "data_type": "number",
+      "required": true,
+      "default_value": ""
+    }
+  ],
+  "when": "true",
+  "then": [
+    "toset = params['amount'].GetNumber() + 0",
+    "meta.SetNumber(params['service_name'].GetString(), toset)"
+  ]
+}
