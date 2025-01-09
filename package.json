@@ -19,8 +19,8 @@
     "clean": "lerna run clean",
     "build": "lerna run build --stream",
     "lint": "lerna run lint --parallel",
-    "test": "lerna run test --stream --scope @thesixnetwork/sixchain-sdk",
-    "codegen": "lerna run codegen --stream --scope @thesixnetwork/sixchain-sdk",
+    "test": "lerna run test --stream --scope @ddeedev/sixchain-sdk",
+    "codegen": "lerna run codegen --stream --scope @ddeedev/sixchain-sdk",
     "symlink": "symlink-workspace --logLevel error",
     "postinstall": "yarn symlink"
   },

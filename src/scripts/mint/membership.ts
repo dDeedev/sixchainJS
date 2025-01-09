@@ -1,4 +1,4 @@
-import { SixDataChainConnector, ITxNFTmngr, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, ITxNFTmngr, fee } from "@ddeedev/sixchain-client";
 import S_ZERO_YEAR from "../../resources/metadatas/membership/senior/nft-data_0_years.json";
 import S_THREE_YEAR from "../../resources/metadatas/membership/senior/nft-data_3_years.json";
 import S_FIVE_YEAR from "../../resources/metadatas/membership/senior/nft-data_5_years.json";

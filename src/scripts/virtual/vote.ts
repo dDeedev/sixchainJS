@@ -1,4 +1,4 @@
-import { SixDataChainConnector, ITxNFTmngr, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, ITxNFTmngr, fee } from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { getConnectorConfig } from "../client";
 import { GasPrice } from "@cosmjs/stargate";

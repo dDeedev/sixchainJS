@@ -1,4 +1,4 @@
-import { SixDataChainConnector } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector } from "@ddeedev/sixchain-client";
 import { getConnectorConfig } from "../client";
 import list_all_recipient from "../utils/all_address";
 import fs from "fs";

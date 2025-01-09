@@ -1,4 +1,4 @@
-# @dDeedev/sixchain-sdk
+# @ddeedev/sixchain-sdk
 
 <p align="center">
   <a href="https://github.com/thesixnetwork/sixchain-sdk">
@@ -17,11 +17,11 @@
 ## install
 
 ```sh
-npm install @dDeedev/sixchain-sdk
+npm install @ddeedev/sixchain-sdk
 ```
 ## Table of contents
 
-- [@dDeedev/sixchain-sdk](#@dDeedev/sixchain-sdk)
+- [@ddeedev/sixchain-sdk](#@ddeedev/sixchain-sdk)
   - [Install](#install)
   - [Table of contents](#table-of-contents)
 - [Usage](#usage)
@@ -46,7 +46,7 @@ npm install @dDeedev/sixchain-sdk
 ### RPC Clients
 
 ```js
-import { six } from '@dDeedev/sixchain-sdk';
+import { six } from '@ddeedev/sixchain-sdk';
 
 const { createRPCQueryClient } = six.ClientFactory; 
 const client = await createRPCQueryClient({ rpcEndpoint: RPC_ENDPOINT });
@@ -62,10 +62,10 @@ const balances = await client.six.exchange.v1beta1
 
 ### Composing Messages
 
-Import the `six` object from `@dDeedev/sixchain-sdk`. 
+Import the `six` object from `@ddeedev/sixchain-sdk`. 
 
 ```js
-import { six } from '@dDeedev/sixchain-sdk';
+import { six } from '@ddeedev/sixchain-sdk';
 
 const {
     createSpotLimitOrder,
@@ -77,7 +77,7 @@ const {
 #### CosmWasm Messages
 
 ```js
-import { cosmwasm } from "@dDeedev/sixchain-sdk";
+import { cosmwasm } from "@ddeedev/sixchain-sdk";
 
 const {
     clearAdmin,
@@ -92,7 +92,7 @@ const {
 #### IBC Messages
 
 ```js
-import { ibc } from '@dDeedev/sixchain-sdk';
+import { ibc } from '@ddeedev/sixchain-sdk';
 
 const {
     transfer
@@ -102,7 +102,7 @@ const {
 #### Cosmos Messages
 
 ```js
-import { cosmos } from '@dDeedev/sixchain-sdk';
+import { cosmos } from '@ddeedev/sixchain-sdk';
 
 const {
     fundCommunityPool,
@@ -270,7 +270,7 @@ yarn build
 
 ### Codegen
 
-Look inside of `scripts/codegen.ts` and configure the settings for bundling your SDK and contracts into `@dDeedev/sixchain-sdk`:
+Look inside of `scripts/codegen.ts` and configure the settings for bundling your SDK and contracts into `@ddeedev/sixchain-sdk`:
 
 ```
 yarn codegen

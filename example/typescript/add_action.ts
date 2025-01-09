@@ -1,4 +1,4 @@
-import { SixDataChainConnector, typesTxNFTManager, BASE64, fee} from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, typesTxNFTManager, BASE64, fee} from "@ddeedev/sixchain-client";
 import exampleNewAction from "../resource/new-action.json";
 
 const main = async () => {

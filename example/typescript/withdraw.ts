@@ -1,5 +1,5 @@
-import { SixDataChainConnector, BASE64, typesTxCosmosStaking, fee } from "@thesixnetwork/sixchain-client";
-import { Coin } from "@thesixnetwork/sixchain-sdk/cosmos/base/v1beta1/coin";
+import { SixDataChainConnector, BASE64, typesTxCosmosStaking, fee } from "@ddeedev/sixchain-client";
+import { Coin } from "@ddeedev/sixchain-sdk/cosmos/base/v1beta1/coin";
 
 const unDelegate = async () => {
     const sixConnector = new SixDataChainConnector();

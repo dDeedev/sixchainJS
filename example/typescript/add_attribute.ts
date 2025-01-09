@@ -1,4 +1,4 @@
-import { SixDataChainConnector, typesTxNFTManager, BASE64, fee} from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, typesTxNFTManager, BASE64, fee} from "@ddeedev/sixchain-client";
 import exampleNewAttribute from "../resource/new-attribute.json";
 import { GasPrice, calculateFee } from "@cosmjs/stargate/build/fee"
 const main = async () => {

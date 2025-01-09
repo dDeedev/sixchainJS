@@ -1,5 +1,5 @@
 import * as bip39 from "bip39";
-import { SixDataChainConnector} from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector} from "@ddeedev/sixchain-client";
 import crypto from "crypto";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { EnglishMnemonic } from "@cosmjs/crypto";

@@ -1,5 +1,5 @@
 {
-  "name": "@thesixnetwork/sixchain-sdk",
+  "name": "@ddeedev/sixchain-sdk",
   "version": "2.0.3",
   "author": "sixnetwork <hamdee@six.network>",
   "description": "SIX Protocol sdk",

@@ -1,4 +1,4 @@
-import { SixDataChainConnector, BASE64, typesTxTokenManager, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, BASE64, typesTxTokenManager, fee } from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { GasPrice, calculateFee } from "@cosmjs/stargate/build/fee";
 import dotenv from "dotenv";

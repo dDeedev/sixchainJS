@@ -1,4 +1,4 @@
-import { SixDataChainConnector, typesTxTokenManager, fee} from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, typesTxTokenManager, fee} from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import dotenv from "dotenv";
 dotenv.config();

@@ -1,4 +1,4 @@
-import { SixDataChainConnector, BASE64 } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, BASE64 } from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import exampleNFTData from "../resource/nft-metadata-example.json";
 import { GasPrice, calculateFee } from "@cosmjs/stargate/build/fee"

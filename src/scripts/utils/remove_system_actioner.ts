@@ -1,4 +1,4 @@
-import { SixDataChainConnector, typesTxNFTManager, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, typesTxNFTManager, fee } from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { GasPrice } from "@cosmjs/stargate/build/fee";
 import dotenv from "dotenv";

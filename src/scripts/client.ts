@@ -1,4 +1,4 @@
-import { SixDataChainConnector } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector } from "@ddeedev/sixchain-client";
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import dotenv from "dotenv";
 

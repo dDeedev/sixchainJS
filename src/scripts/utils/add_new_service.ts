@@ -1,4 +1,4 @@
-import { SixDataChainConnector, ITxNFTmngr, fee, BASE64, typesTxNFTManager } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, ITxNFTmngr, fee, BASE64, typesTxNFTManager } from "@ddeedev/sixchain-client";
 import newAttribute from "../../resources/utils/new-attribute.json";
 import divine_elite from "../../resources/schemas/divineelite-nft-schema.json";
 import { getConnectorConfig } from "../client";

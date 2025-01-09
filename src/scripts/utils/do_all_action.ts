@@ -1,4 +1,4 @@
-import { SixDataChainConnector, ITxNFTmngr, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, ITxNFTmngr, fee } from "@ddeedev/sixchain-client";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { v4 } from "uuid";
 import dotenv from "dotenv";

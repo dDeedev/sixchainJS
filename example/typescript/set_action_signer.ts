@@ -1,4 +1,4 @@
-import { SixDataChainConnector, typesTxNFTOracle, fee } from "@thesixnetwork/sixchain-client";
+import { SixDataChainConnector, typesTxNFTOracle, fee } from "@ddeedev/sixchain-client";
 import Web3 from "web3"; // version 1.9.0"
 const web3 = new Web3('ws://localhost:8546');
 import { ethers } from "ethers"; // version "^5.7.0"

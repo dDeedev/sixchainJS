@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@thesixnetwork/sixchain-sdk": "../packages/sixchain-client/*",
+    "@ddeedev/sixchain-sdk": "../packages/sixchain-client/*",
     "ethers":"^5.5.4",
     "web3":"1.9.0"
   }
