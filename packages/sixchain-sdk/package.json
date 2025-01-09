@@ -1,6 +1,6 @@
 {
   "name": "@ddeedev/sixchain-sdk",
-  "version": "2.0.3",
+  "version": "1.0.0",
   "author": "sixnetwork <hamdee@six.network>",
   "description": "SIX Protocol sdk",
   "main": "index.js",
