@@ -5,13 +5,13 @@ import {EncodeObject, OfflineSigner, Registry } from '@cosmjs/proto-signing';
 import { SigningStargateClient, SigningStargateClientOptions} from '@cosmjs/stargate';
 
 import { Api } from './rest';
-import { MsgRevokePermission } from './types/nftadmin/tx';
 import { MsgGrantPermission } from './types/nftadmin/tx';
+import { MsgRevokePermission } from './types/nftadmin/tx';
 
 
 const types = [
-  ['/thesixnetwork.sixprotocol.nftadmin.MsgRevokePermission', MsgRevokePermission],
   ['/thesixnetwork.sixprotocol.nftadmin.MsgGrantPermission', MsgGrantPermission],
+  ['/thesixnetwork.sixprotocol.nftadmin.MsgRevokePermission', MsgRevokePermission],
   
 ];
 export const MissingWalletError = new Error('wallet is required');
@@ -44,8 +44,8 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
 
   return {
     signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ''}) => client.signAndBroadcast(address, msgs, fee,memo),
-    msgRevokePermission: (data: MsgRevokePermission): EncodeObject => ({ typeUrl: '/thesixnetwork.sixprotocol.nftadmin.MsgRevokePermission', value: MsgRevokePermission.fromPartial( data ) }),
     msgGrantPermission: (data: MsgGrantPermission): EncodeObject => ({ typeUrl: '/thesixnetwork.sixprotocol.nftadmin.MsgGrantPermission', value: MsgGrantPermission.fromPartial( data ) }),
+    msgRevokePermission: (data: MsgRevokePermission): EncodeObject => ({ typeUrl: '/thesixnetwork.sixprotocol.nftadmin.MsgRevokePermission', value: MsgRevokePermission.fromPartial( data ) }),
     
   };
 };

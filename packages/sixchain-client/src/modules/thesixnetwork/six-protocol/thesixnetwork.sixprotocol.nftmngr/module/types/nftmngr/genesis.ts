@@ -20,7 +20,7 @@ import {
   ActiveVirtualSchemaProposal,
   InactiveVirtualSchemaProposal,
 } from "../nftmngr/virtual_schema";
-import { DisableVirtualSchema } from "../nftmngr/disable_virtual_schema";
+import { LockSchemaFee } from "../nftmngr/lock_schema_fee";
 import { Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "thesixnetwork.sixprotocol.nftmngr";
@@ -43,11 +43,11 @@ export interface GenesisState {
   executorOfSchemaList: ExecutorOfSchema[];
   virtualActionList: VirtualAction[];
   virtualSchemaList: VirtualSchema[];
-  disableVirtualSchemaList: DisableVirtualSchema[];
   virtualSchemaProposalList: VirtualSchemaProposal[];
   activeVirtualSchemaProposalList: ActiveVirtualSchemaProposal[];
-  /** this line is used by starport scaffolding # genesis/proto/state */
   inactiveVirtualSchemaProposalList: InactiveVirtualSchemaProposal[];
+  /** this line is used by starport scaffolding # genesis/proto/state */
+  lockSchemaFeeList: LockSchemaFee[];
 }
 
 const baseGenesisState: object = {};
@@ -108,9 +108,6 @@ export const GenesisState = {
     for (const v of message.virtualSchemaList) {
       VirtualSchema.encode(v!, writer.uint32(138).fork()).ldelim();
     }
-    for (const v of message.disableVirtualSchemaList) {
-      DisableVirtualSchema.encode(v!, writer.uint32(146).fork()).ldelim();
-    }
     for (const v of message.virtualSchemaProposalList) {
       VirtualSchemaProposal.encode(v!, writer.uint32(154).fork()).ldelim();
     }
@@ -125,6 +122,9 @@ export const GenesisState = {
         v!,
         writer.uint32(170).fork()
       ).ldelim();
+    }
+    for (const v of message.lockSchemaFeeList) {
+      LockSchemaFee.encode(v!, writer.uint32(178).fork()).ldelim();
     }
     return writer;
   },
@@ -146,10 +146,10 @@ export const GenesisState = {
     message.executorOfSchemaList = [];
     message.virtualActionList = [];
     message.virtualSchemaList = [];
-    message.disableVirtualSchemaList = [];
     message.virtualSchemaProposalList = [];
     message.activeVirtualSchemaProposalList = [];
     message.inactiveVirtualSchemaProposalList = [];
+    message.lockSchemaFeeList = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -223,11 +223,6 @@ export const GenesisState = {
             VirtualSchema.decode(reader, reader.uint32())
           );
           break;
-        case 18:
-          message.disableVirtualSchemaList.push(
-            DisableVirtualSchema.decode(reader, reader.uint32())
-          );
-          break;
         case 19:
           message.virtualSchemaProposalList.push(
             VirtualSchemaProposal.decode(reader, reader.uint32())
@@ -241,6 +236,11 @@ export const GenesisState = {
         case 21:
           message.inactiveVirtualSchemaProposalList.push(
             InactiveVirtualSchemaProposal.decode(reader, reader.uint32())
+          );
+          break;
+        case 22:
+          message.lockSchemaFeeList.push(
+            LockSchemaFee.decode(reader, reader.uint32())
           );
           break;
         default:
@@ -266,10 +266,10 @@ export const GenesisState = {
     message.executorOfSchemaList = [];
     message.virtualActionList = [];
     message.virtualSchemaList = [];
-    message.disableVirtualSchemaList = [];
     message.virtualSchemaProposalList = [];
     message.activeVirtualSchemaProposalList = [];
     message.inactiveVirtualSchemaProposalList = [];
+    message.lockSchemaFeeList = [];
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromJSON(object.params);
     } else {
@@ -384,14 +384,6 @@ export const GenesisState = {
       }
     }
     if (
-      object.disableVirtualSchemaList !== undefined &&
-      object.disableVirtualSchemaList !== null
-    ) {
-      for (const e of object.disableVirtualSchemaList) {
-        message.disableVirtualSchemaList.push(DisableVirtualSchema.fromJSON(e));
-      }
-    }
-    if (
       object.virtualSchemaProposalList !== undefined &&
       object.virtualSchemaProposalList !== null
     ) {
@@ -419,6 +411,14 @@ export const GenesisState = {
         message.inactiveVirtualSchemaProposalList.push(
           InactiveVirtualSchemaProposal.fromJSON(e)
         );
+      }
+    }
+    if (
+      object.lockSchemaFeeList !== undefined &&
+      object.lockSchemaFeeList !== null
+    ) {
+      for (const e of object.lockSchemaFeeList) {
+        message.lockSchemaFeeList.push(LockSchemaFee.fromJSON(e));
       }
     }
     return message;
@@ -527,13 +527,6 @@ export const GenesisState = {
     } else {
       obj.virtualSchemaList = [];
     }
-    if (message.disableVirtualSchemaList) {
-      obj.disableVirtualSchemaList = message.disableVirtualSchemaList.map((e) =>
-        e ? DisableVirtualSchema.toJSON(e) : undefined
-      );
-    } else {
-      obj.disableVirtualSchemaList = [];
-    }
     if (message.virtualSchemaProposalList) {
       obj.virtualSchemaProposalList = message.virtualSchemaProposalList.map(
         (e) => (e ? VirtualSchemaProposal.toJSON(e) : undefined)
@@ -555,6 +548,13 @@ export const GenesisState = {
     } else {
       obj.inactiveVirtualSchemaProposalList = [];
     }
+    if (message.lockSchemaFeeList) {
+      obj.lockSchemaFeeList = message.lockSchemaFeeList.map((e) =>
+        e ? LockSchemaFee.toJSON(e) : undefined
+      );
+    } else {
+      obj.lockSchemaFeeList = [];
+    }
     return obj;
   },
 
@@ -573,10 +573,10 @@ export const GenesisState = {
     message.executorOfSchemaList = [];
     message.virtualActionList = [];
     message.virtualSchemaList = [];
-    message.disableVirtualSchemaList = [];
     message.virtualSchemaProposalList = [];
     message.activeVirtualSchemaProposalList = [];
     message.inactiveVirtualSchemaProposalList = [];
+    message.lockSchemaFeeList = [];
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromPartial(object.params);
     } else {
@@ -693,16 +693,6 @@ export const GenesisState = {
       }
     }
     if (
-      object.disableVirtualSchemaList !== undefined &&
-      object.disableVirtualSchemaList !== null
-    ) {
-      for (const e of object.disableVirtualSchemaList) {
-        message.disableVirtualSchemaList.push(
-          DisableVirtualSchema.fromPartial(e)
-        );
-      }
-    }
-    if (
       object.virtualSchemaProposalList !== undefined &&
       object.virtualSchemaProposalList !== null
     ) {
@@ -730,6 +720,14 @@ export const GenesisState = {
         message.inactiveVirtualSchemaProposalList.push(
           InactiveVirtualSchemaProposal.fromPartial(e)
         );
+      }
+    }
+    if (
+      object.lockSchemaFeeList !== undefined &&
+      object.lockSchemaFeeList !== null
+    ) {
+      for (const e of object.lockSchemaFeeList) {
+        message.lockSchemaFeeList.push(LockSchemaFee.fromPartial(e));
       }
     }
     return message;

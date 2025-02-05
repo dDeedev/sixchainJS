@@ -11,8 +11,6 @@
     "declaration": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "rootDir": "src/",
-    "outDir": "dist",
   },
   "exclude": ["dist", "node_modules"],
   "include": ["src/**/*.ts"],

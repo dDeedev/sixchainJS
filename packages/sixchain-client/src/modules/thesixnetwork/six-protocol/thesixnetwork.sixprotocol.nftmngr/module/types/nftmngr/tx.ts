@@ -1,12 +1,16 @@
 /* eslint-disable */
 import {
+  ProposalType,
   RegistryStatus,
   VirtualSchemaRegistryRequest,
+  proposalTypeFromJSON,
+  proposalTypeToJSON,
   registryStatusFromJSON,
   registryStatusToJSON,
 } from "../nftmngr/virtual_schema";
 import { Reader, Writer } from "protobufjs/minimal";
 import { Any } from "../google/protobuf/any";
+import { FeeConfig } from "../nftmngr/nft_fee_config";
 import { Action } from "../nftmngr/action";
 import { VirtualAction } from "../nftmngr/virtual_action";
 
@@ -76,32 +80,6 @@ export function authorizeToToJSON(object: AuthorizeTo): string {
   }
 }
 
-export enum FeeSubject {
-  CREATE_NFT_SCHEMA = 0,
-  UNRECOGNIZED = -1,
-}
-
-export function feeSubjectFromJSON(object: any): FeeSubject {
-  switch (object) {
-    case 0:
-    case "CREATE_NFT_SCHEMA":
-      return FeeSubject.CREATE_NFT_SCHEMA;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return FeeSubject.UNRECOGNIZED;
-  }
-}
-
-export function feeSubjectToJSON(object: FeeSubject): string {
-  switch (object) {
-    case FeeSubject.CREATE_NFT_SCHEMA:
-      return "CREATE_NFT_SCHEMA";
-    default:
-      return "UNKNOWN";
-  }
-}
-
 export interface MsgCreateNFTSchema {
   creator: string;
   nftSchemaBase64: string;
@@ -121,18 +99,6 @@ export interface MsgCreateMetadata {
 export interface MsgCreateMetadataResponse {
   nftSchemaCode: string;
   tokenId: string;
-}
-
-export interface MsgCreateMultiMetadata {
-  creator: string;
-  nftSchemaCode: string;
-  tokenId: string[];
-  base64NFTData: string;
-}
-
-export interface MsgCreateMultiMetadataResponse {
-  nftSchemaCode: string;
-  tokenId: string[];
 }
 
 export interface OpenseaAttribute {
@@ -250,8 +216,7 @@ export interface MsgResyncAttributes {
 
 export interface MsgSetFeeConfig {
   creator: string;
-  newFeeConfigBase64: string;
-  feeSubject: FeeSubject;
+  feeConfig: FeeConfig | undefined;
 }
 
 export interface MsgSetFeeConfigResponse {}
@@ -421,44 +386,6 @@ export interface MsgDeleteVirtualActionResponse {
   status: string;
 }
 
-export interface MsgCreateVirtualSchemaProposal {
-  creator: string;
-  virtualNftSchemaCode: string;
-  registry: VirtualSchemaRegistryRequest[];
-}
-
-export interface MsgCreateVirtualSchemaResponse {
-  id: string;
-  virtualNftSchemaCode: string;
-}
-
-export interface MsgDeleteVirtualSchema {
-  creator: string;
-  virtualNftSchemaCode: string;
-}
-
-export interface MsgDeleteVirtualSchemaResponse {}
-
-export interface MsgVoteCreateVirtualSchema {
-  creator: string;
-  id: string;
-  nftSchemaCode: string;
-  option: RegistryStatus;
-}
-
-export interface MsgVoteCreateVirtualSchemaResponse {}
-
-export interface MsgDisableVirtualSchemaProposal {
-  creator: string;
-  virtualNftSchemaCode: string;
-  proposalExpiredBlock: string;
-}
-
-export interface MsgDisableVirtualSchemaProposalResponse {
-  creator: string;
-  proposalId: string;
-}
-
 export interface MsgPerformVirtualAction {
   creator: string;
   nftSchemaName: string;
@@ -476,6 +403,31 @@ export interface TokenIdMap {
   nftSchemaName: string;
   tokenId: string;
 }
+
+export interface MsgProposalVirtualSchema {
+  creator: string;
+  virtualNftSchemaCode: string;
+  proposalType: ProposalType;
+  registry: VirtualSchemaRegistryRequest[];
+  actions: Action[];
+  executors: string[];
+  enable: boolean;
+}
+
+export interface MsgProposalVirtualSchemaResponse {
+  id: string;
+  virtualNftSchemaCode: string;
+  proposalType: ProposalType;
+}
+
+export interface MsgVoteVirtualSchemaProposal {
+  creator: string;
+  id: string;
+  nftSchemaCode: string;
+  option: RegistryStatus;
+}
+
+export interface MsgVoteVirtualSchemaProposalResponse {}
 
 const baseMsgCreateNFTSchema: object = { creator: "", nftSchemaBase64: "" };
 
@@ -826,228 +778,6 @@ export const MsgCreateMetadataResponse = {
       message.tokenId = object.tokenId;
     } else {
       message.tokenId = "";
-    }
-    return message;
-  },
-};
-
-const baseMsgCreateMultiMetadata: object = {
-  creator: "",
-  nftSchemaCode: "",
-  tokenId: "",
-  base64NFTData: "",
-};
-
-export const MsgCreateMultiMetadata = {
-  encode(
-    message: MsgCreateMultiMetadata,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.nftSchemaCode !== "") {
-      writer.uint32(18).string(message.nftSchemaCode);
-    }
-    for (const v of message.tokenId) {
-      writer.uint32(26).string(v!);
-    }
-    if (message.base64NFTData !== "") {
-      writer.uint32(34).string(message.base64NFTData);
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): MsgCreateMultiMetadata {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMsgCreateMultiMetadata } as MsgCreateMultiMetadata;
-    message.tokenId = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.nftSchemaCode = reader.string();
-          break;
-        case 3:
-          message.tokenId.push(reader.string());
-          break;
-        case 4:
-          message.base64NFTData = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgCreateMultiMetadata {
-    const message = { ...baseMsgCreateMultiMetadata } as MsgCreateMultiMetadata;
-    message.tokenId = [];
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = String(object.nftSchemaCode);
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.tokenId !== undefined && object.tokenId !== null) {
-      for (const e of object.tokenId) {
-        message.tokenId.push(String(e));
-      }
-    }
-    if (object.base64NFTData !== undefined && object.base64NFTData !== null) {
-      message.base64NFTData = String(object.base64NFTData);
-    } else {
-      message.base64NFTData = "";
-    }
-    return message;
-  },
-
-  toJSON(message: MsgCreateMultiMetadata): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.nftSchemaCode !== undefined &&
-      (obj.nftSchemaCode = message.nftSchemaCode);
-    if (message.tokenId) {
-      obj.tokenId = message.tokenId.map((e) => e);
-    } else {
-      obj.tokenId = [];
-    }
-    message.base64NFTData !== undefined &&
-      (obj.base64NFTData = message.base64NFTData);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgCreateMultiMetadata>
-  ): MsgCreateMultiMetadata {
-    const message = { ...baseMsgCreateMultiMetadata } as MsgCreateMultiMetadata;
-    message.tokenId = [];
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = object.nftSchemaCode;
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.tokenId !== undefined && object.tokenId !== null) {
-      for (const e of object.tokenId) {
-        message.tokenId.push(e);
-      }
-    }
-    if (object.base64NFTData !== undefined && object.base64NFTData !== null) {
-      message.base64NFTData = object.base64NFTData;
-    } else {
-      message.base64NFTData = "";
-    }
-    return message;
-  },
-};
-
-const baseMsgCreateMultiMetadataResponse: object = {
-  nftSchemaCode: "",
-  tokenId: "",
-};
-
-export const MsgCreateMultiMetadataResponse = {
-  encode(
-    message: MsgCreateMultiMetadataResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.nftSchemaCode !== "") {
-      writer.uint32(10).string(message.nftSchemaCode);
-    }
-    for (const v of message.tokenId) {
-      writer.uint32(18).string(v!);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgCreateMultiMetadataResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgCreateMultiMetadataResponse,
-    } as MsgCreateMultiMetadataResponse;
-    message.tokenId = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.nftSchemaCode = reader.string();
-          break;
-        case 2:
-          message.tokenId.push(reader.string());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgCreateMultiMetadataResponse {
-    const message = {
-      ...baseMsgCreateMultiMetadataResponse,
-    } as MsgCreateMultiMetadataResponse;
-    message.tokenId = [];
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = String(object.nftSchemaCode);
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.tokenId !== undefined && object.tokenId !== null) {
-      for (const e of object.tokenId) {
-        message.tokenId.push(String(e));
-      }
-    }
-    return message;
-  },
-
-  toJSON(message: MsgCreateMultiMetadataResponse): unknown {
-    const obj: any = {};
-    message.nftSchemaCode !== undefined &&
-      (obj.nftSchemaCode = message.nftSchemaCode);
-    if (message.tokenId) {
-      obj.tokenId = message.tokenId.map((e) => e);
-    } else {
-      obj.tokenId = [];
-    }
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgCreateMultiMetadataResponse>
-  ): MsgCreateMultiMetadataResponse {
-    const message = {
-      ...baseMsgCreateMultiMetadataResponse,
-    } as MsgCreateMultiMetadataResponse;
-    message.tokenId = [];
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = object.nftSchemaCode;
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.tokenId !== undefined && object.tokenId !== null) {
-      for (const e of object.tokenId) {
-        message.tokenId.push(e);
-      }
     }
     return message;
   },
@@ -2931,22 +2661,15 @@ export const MsgResyncAttributes = {
   },
 };
 
-const baseMsgSetFeeConfig: object = {
-  creator: "",
-  newFeeConfigBase64: "",
-  feeSubject: 0,
-};
+const baseMsgSetFeeConfig: object = { creator: "" };
 
 export const MsgSetFeeConfig = {
   encode(message: MsgSetFeeConfig, writer: Writer = Writer.create()): Writer {
     if (message.creator !== "") {
       writer.uint32(10).string(message.creator);
     }
-    if (message.newFeeConfigBase64 !== "") {
-      writer.uint32(18).string(message.newFeeConfigBase64);
-    }
-    if (message.feeSubject !== 0) {
-      writer.uint32(24).int32(message.feeSubject);
+    if (message.feeConfig !== undefined) {
+      FeeConfig.encode(message.feeConfig, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -2962,10 +2685,7 @@ export const MsgSetFeeConfig = {
           message.creator = reader.string();
           break;
         case 2:
-          message.newFeeConfigBase64 = reader.string();
-          break;
-        case 3:
-          message.feeSubject = reader.int32() as any;
+          message.feeConfig = FeeConfig.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -2982,18 +2702,10 @@ export const MsgSetFeeConfig = {
     } else {
       message.creator = "";
     }
-    if (
-      object.newFeeConfigBase64 !== undefined &&
-      object.newFeeConfigBase64 !== null
-    ) {
-      message.newFeeConfigBase64 = String(object.newFeeConfigBase64);
+    if (object.feeConfig !== undefined && object.feeConfig !== null) {
+      message.feeConfig = FeeConfig.fromJSON(object.feeConfig);
     } else {
-      message.newFeeConfigBase64 = "";
-    }
-    if (object.feeSubject !== undefined && object.feeSubject !== null) {
-      message.feeSubject = feeSubjectFromJSON(object.feeSubject);
-    } else {
-      message.feeSubject = 0;
+      message.feeConfig = undefined;
     }
     return message;
   },
@@ -3001,10 +2713,10 @@ export const MsgSetFeeConfig = {
   toJSON(message: MsgSetFeeConfig): unknown {
     const obj: any = {};
     message.creator !== undefined && (obj.creator = message.creator);
-    message.newFeeConfigBase64 !== undefined &&
-      (obj.newFeeConfigBase64 = message.newFeeConfigBase64);
-    message.feeSubject !== undefined &&
-      (obj.feeSubject = feeSubjectToJSON(message.feeSubject));
+    message.feeConfig !== undefined &&
+      (obj.feeConfig = message.feeConfig
+        ? FeeConfig.toJSON(message.feeConfig)
+        : undefined);
     return obj;
   },
 
@@ -3015,18 +2727,10 @@ export const MsgSetFeeConfig = {
     } else {
       message.creator = "";
     }
-    if (
-      object.newFeeConfigBase64 !== undefined &&
-      object.newFeeConfigBase64 !== null
-    ) {
-      message.newFeeConfigBase64 = object.newFeeConfigBase64;
+    if (object.feeConfig !== undefined && object.feeConfig !== null) {
+      message.feeConfig = FeeConfig.fromPartial(object.feeConfig);
     } else {
-      message.newFeeConfigBase64 = "";
-    }
-    if (object.feeSubject !== undefined && object.feeSubject !== null) {
-      message.feeSubject = object.feeSubject;
-    } else {
-      message.feeSubject = 0;
+      message.feeConfig = undefined;
     }
     return message;
   },
@@ -6012,757 +5716,6 @@ export const MsgDeleteVirtualActionResponse = {
   },
 };
 
-const baseMsgCreateVirtualSchemaProposal: object = {
-  creator: "",
-  virtualNftSchemaCode: "",
-};
-
-export const MsgCreateVirtualSchemaProposal = {
-  encode(
-    message: MsgCreateVirtualSchemaProposal,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.virtualNftSchemaCode !== "") {
-      writer.uint32(18).string(message.virtualNftSchemaCode);
-    }
-    for (const v of message.registry) {
-      VirtualSchemaRegistryRequest.encode(
-        v!,
-        writer.uint32(26).fork()
-      ).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgCreateVirtualSchemaProposal {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgCreateVirtualSchemaProposal,
-    } as MsgCreateVirtualSchemaProposal;
-    message.registry = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.virtualNftSchemaCode = reader.string();
-          break;
-        case 3:
-          message.registry.push(
-            VirtualSchemaRegistryRequest.decode(reader, reader.uint32())
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgCreateVirtualSchemaProposal {
-    const message = {
-      ...baseMsgCreateVirtualSchemaProposal,
-    } as MsgCreateVirtualSchemaProposal;
-    message.registry = [];
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    if (object.registry !== undefined && object.registry !== null) {
-      for (const e of object.registry) {
-        message.registry.push(VirtualSchemaRegistryRequest.fromJSON(e));
-      }
-    }
-    return message;
-  },
-
-  toJSON(message: MsgCreateVirtualSchemaProposal): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.virtualNftSchemaCode !== undefined &&
-      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
-    if (message.registry) {
-      obj.registry = message.registry.map((e) =>
-        e ? VirtualSchemaRegistryRequest.toJSON(e) : undefined
-      );
-    } else {
-      obj.registry = [];
-    }
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgCreateVirtualSchemaProposal>
-  ): MsgCreateVirtualSchemaProposal {
-    const message = {
-      ...baseMsgCreateVirtualSchemaProposal,
-    } as MsgCreateVirtualSchemaProposal;
-    message.registry = [];
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    if (object.registry !== undefined && object.registry !== null) {
-      for (const e of object.registry) {
-        message.registry.push(VirtualSchemaRegistryRequest.fromPartial(e));
-      }
-    }
-    return message;
-  },
-};
-
-const baseMsgCreateVirtualSchemaResponse: object = {
-  id: "",
-  virtualNftSchemaCode: "",
-};
-
-export const MsgCreateVirtualSchemaResponse = {
-  encode(
-    message: MsgCreateVirtualSchemaResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.virtualNftSchemaCode !== "") {
-      writer.uint32(18).string(message.virtualNftSchemaCode);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgCreateVirtualSchemaResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgCreateVirtualSchemaResponse,
-    } as MsgCreateVirtualSchemaResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.id = reader.string();
-          break;
-        case 2:
-          message.virtualNftSchemaCode = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgCreateVirtualSchemaResponse {
-    const message = {
-      ...baseMsgCreateVirtualSchemaResponse,
-    } as MsgCreateVirtualSchemaResponse;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    return message;
-  },
-
-  toJSON(message: MsgCreateVirtualSchemaResponse): unknown {
-    const obj: any = {};
-    message.id !== undefined && (obj.id = message.id);
-    message.virtualNftSchemaCode !== undefined &&
-      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgCreateVirtualSchemaResponse>
-  ): MsgCreateVirtualSchemaResponse {
-    const message = {
-      ...baseMsgCreateVirtualSchemaResponse,
-    } as MsgCreateVirtualSchemaResponse;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    return message;
-  },
-};
-
-const baseMsgDeleteVirtualSchema: object = {
-  creator: "",
-  virtualNftSchemaCode: "",
-};
-
-export const MsgDeleteVirtualSchema = {
-  encode(
-    message: MsgDeleteVirtualSchema,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.virtualNftSchemaCode !== "") {
-      writer.uint32(18).string(message.virtualNftSchemaCode);
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): MsgDeleteVirtualSchema {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMsgDeleteVirtualSchema } as MsgDeleteVirtualSchema;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.virtualNftSchemaCode = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgDeleteVirtualSchema {
-    const message = { ...baseMsgDeleteVirtualSchema } as MsgDeleteVirtualSchema;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    return message;
-  },
-
-  toJSON(message: MsgDeleteVirtualSchema): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.virtualNftSchemaCode !== undefined &&
-      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgDeleteVirtualSchema>
-  ): MsgDeleteVirtualSchema {
-    const message = { ...baseMsgDeleteVirtualSchema } as MsgDeleteVirtualSchema;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    return message;
-  },
-};
-
-const baseMsgDeleteVirtualSchemaResponse: object = {};
-
-export const MsgDeleteVirtualSchemaResponse = {
-  encode(
-    _: MsgDeleteVirtualSchemaResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgDeleteVirtualSchemaResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgDeleteVirtualSchemaResponse,
-    } as MsgDeleteVirtualSchemaResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(_: any): MsgDeleteVirtualSchemaResponse {
-    const message = {
-      ...baseMsgDeleteVirtualSchemaResponse,
-    } as MsgDeleteVirtualSchemaResponse;
-    return message;
-  },
-
-  toJSON(_: MsgDeleteVirtualSchemaResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  fromPartial(
-    _: DeepPartial<MsgDeleteVirtualSchemaResponse>
-  ): MsgDeleteVirtualSchemaResponse {
-    const message = {
-      ...baseMsgDeleteVirtualSchemaResponse,
-    } as MsgDeleteVirtualSchemaResponse;
-    return message;
-  },
-};
-
-const baseMsgVoteCreateVirtualSchema: object = {
-  creator: "",
-  id: "",
-  nftSchemaCode: "",
-  option: 0,
-};
-
-export const MsgVoteCreateVirtualSchema = {
-  encode(
-    message: MsgVoteCreateVirtualSchema,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.id !== "") {
-      writer.uint32(18).string(message.id);
-    }
-    if (message.nftSchemaCode !== "") {
-      writer.uint32(26).string(message.nftSchemaCode);
-    }
-    if (message.option !== 0) {
-      writer.uint32(32).int32(message.option);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgVoteCreateVirtualSchema {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgVoteCreateVirtualSchema,
-    } as MsgVoteCreateVirtualSchema;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.id = reader.string();
-          break;
-        case 3:
-          message.nftSchemaCode = reader.string();
-          break;
-        case 4:
-          message.option = reader.int32() as any;
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgVoteCreateVirtualSchema {
-    const message = {
-      ...baseMsgVoteCreateVirtualSchema,
-    } as MsgVoteCreateVirtualSchema;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = "";
-    }
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = String(object.nftSchemaCode);
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.option !== undefined && object.option !== null) {
-      message.option = registryStatusFromJSON(object.option);
-    } else {
-      message.option = 0;
-    }
-    return message;
-  },
-
-  toJSON(message: MsgVoteCreateVirtualSchema): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.id !== undefined && (obj.id = message.id);
-    message.nftSchemaCode !== undefined &&
-      (obj.nftSchemaCode = message.nftSchemaCode);
-    message.option !== undefined &&
-      (obj.option = registryStatusToJSON(message.option));
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgVoteCreateVirtualSchema>
-  ): MsgVoteCreateVirtualSchema {
-    const message = {
-      ...baseMsgVoteCreateVirtualSchema,
-    } as MsgVoteCreateVirtualSchema;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = "";
-    }
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = object.nftSchemaCode;
-    } else {
-      message.nftSchemaCode = "";
-    }
-    if (object.option !== undefined && object.option !== null) {
-      message.option = object.option;
-    } else {
-      message.option = 0;
-    }
-    return message;
-  },
-};
-
-const baseMsgVoteCreateVirtualSchemaResponse: object = {};
-
-export const MsgVoteCreateVirtualSchemaResponse = {
-  encode(
-    _: MsgVoteCreateVirtualSchemaResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgVoteCreateVirtualSchemaResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgVoteCreateVirtualSchemaResponse,
-    } as MsgVoteCreateVirtualSchemaResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(_: any): MsgVoteCreateVirtualSchemaResponse {
-    const message = {
-      ...baseMsgVoteCreateVirtualSchemaResponse,
-    } as MsgVoteCreateVirtualSchemaResponse;
-    return message;
-  },
-
-  toJSON(_: MsgVoteCreateVirtualSchemaResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  fromPartial(
-    _: DeepPartial<MsgVoteCreateVirtualSchemaResponse>
-  ): MsgVoteCreateVirtualSchemaResponse {
-    const message = {
-      ...baseMsgVoteCreateVirtualSchemaResponse,
-    } as MsgVoteCreateVirtualSchemaResponse;
-    return message;
-  },
-};
-
-const baseMsgDisableVirtualSchemaProposal: object = {
-  creator: "",
-  virtualNftSchemaCode: "",
-  proposalExpiredBlock: "",
-};
-
-export const MsgDisableVirtualSchemaProposal = {
-  encode(
-    message: MsgDisableVirtualSchemaProposal,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.virtualNftSchemaCode !== "") {
-      writer.uint32(18).string(message.virtualNftSchemaCode);
-    }
-    if (message.proposalExpiredBlock !== "") {
-      writer.uint32(26).string(message.proposalExpiredBlock);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgDisableVirtualSchemaProposal {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposal,
-    } as MsgDisableVirtualSchemaProposal;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.virtualNftSchemaCode = reader.string();
-          break;
-        case 3:
-          message.proposalExpiredBlock = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgDisableVirtualSchemaProposal {
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposal,
-    } as MsgDisableVirtualSchemaProposal;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    if (
-      object.proposalExpiredBlock !== undefined &&
-      object.proposalExpiredBlock !== null
-    ) {
-      message.proposalExpiredBlock = String(object.proposalExpiredBlock);
-    } else {
-      message.proposalExpiredBlock = "";
-    }
-    return message;
-  },
-
-  toJSON(message: MsgDisableVirtualSchemaProposal): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.virtualNftSchemaCode !== undefined &&
-      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
-    message.proposalExpiredBlock !== undefined &&
-      (obj.proposalExpiredBlock = message.proposalExpiredBlock);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgDisableVirtualSchemaProposal>
-  ): MsgDisableVirtualSchemaProposal {
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposal,
-    } as MsgDisableVirtualSchemaProposal;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (
-      object.virtualNftSchemaCode !== undefined &&
-      object.virtualNftSchemaCode !== null
-    ) {
-      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
-    } else {
-      message.virtualNftSchemaCode = "";
-    }
-    if (
-      object.proposalExpiredBlock !== undefined &&
-      object.proposalExpiredBlock !== null
-    ) {
-      message.proposalExpiredBlock = object.proposalExpiredBlock;
-    } else {
-      message.proposalExpiredBlock = "";
-    }
-    return message;
-  },
-};
-
-const baseMsgDisableVirtualSchemaProposalResponse: object = {
-  creator: "",
-  proposalId: "",
-};
-
-export const MsgDisableVirtualSchemaProposalResponse = {
-  encode(
-    message: MsgDisableVirtualSchemaProposalResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.creator !== "") {
-      writer.uint32(10).string(message.creator);
-    }
-    if (message.proposalId !== "") {
-      writer.uint32(18).string(message.proposalId);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgDisableVirtualSchemaProposalResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposalResponse,
-    } as MsgDisableVirtualSchemaProposalResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.creator = reader.string();
-          break;
-        case 2:
-          message.proposalId = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MsgDisableVirtualSchemaProposalResponse {
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposalResponse,
-    } as MsgDisableVirtualSchemaProposalResponse;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = String(object.creator);
-    } else {
-      message.creator = "";
-    }
-    if (object.proposalId !== undefined && object.proposalId !== null) {
-      message.proposalId = String(object.proposalId);
-    } else {
-      message.proposalId = "";
-    }
-    return message;
-  },
-
-  toJSON(message: MsgDisableVirtualSchemaProposalResponse): unknown {
-    const obj: any = {};
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.proposalId !== undefined && (obj.proposalId = message.proposalId);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<MsgDisableVirtualSchemaProposalResponse>
-  ): MsgDisableVirtualSchemaProposalResponse {
-    const message = {
-      ...baseMsgDisableVirtualSchemaProposalResponse,
-    } as MsgDisableVirtualSchemaProposalResponse;
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    } else {
-      message.creator = "";
-    }
-    if (object.proposalId !== undefined && object.proposalId !== null) {
-      message.proposalId = object.proposalId;
-    } else {
-      message.proposalId = "";
-    }
-    return message;
-  },
-};
-
 const baseMsgPerformVirtualAction: object = {
   creator: "",
   nftSchemaName: "",
@@ -7083,6 +6036,515 @@ export const TokenIdMap = {
   },
 };
 
+const baseMsgProposalVirtualSchema: object = {
+  creator: "",
+  virtualNftSchemaCode: "",
+  proposalType: 0,
+  executors: "",
+  enable: false,
+};
+
+export const MsgProposalVirtualSchema = {
+  encode(
+    message: MsgProposalVirtualSchema,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.virtualNftSchemaCode !== "") {
+      writer.uint32(18).string(message.virtualNftSchemaCode);
+    }
+    if (message.proposalType !== 0) {
+      writer.uint32(24).int32(message.proposalType);
+    }
+    for (const v of message.registry) {
+      VirtualSchemaRegistryRequest.encode(
+        v!,
+        writer.uint32(34).fork()
+      ).ldelim();
+    }
+    for (const v of message.actions) {
+      Action.encode(v!, writer.uint32(42).fork()).ldelim();
+    }
+    for (const v of message.executors) {
+      writer.uint32(50).string(v!);
+    }
+    if (message.enable === true) {
+      writer.uint32(56).bool(message.enable);
+    }
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): MsgProposalVirtualSchema {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseMsgProposalVirtualSchema,
+    } as MsgProposalVirtualSchema;
+    message.registry = [];
+    message.actions = [];
+    message.executors = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.virtualNftSchemaCode = reader.string();
+          break;
+        case 3:
+          message.proposalType = reader.int32() as any;
+          break;
+        case 4:
+          message.registry.push(
+            VirtualSchemaRegistryRequest.decode(reader, reader.uint32())
+          );
+          break;
+        case 5:
+          message.actions.push(Action.decode(reader, reader.uint32()));
+          break;
+        case 6:
+          message.executors.push(reader.string());
+          break;
+        case 7:
+          message.enable = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgProposalVirtualSchema {
+    const message = {
+      ...baseMsgProposalVirtualSchema,
+    } as MsgProposalVirtualSchema;
+    message.registry = [];
+    message.actions = [];
+    message.executors = [];
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = String(object.creator);
+    } else {
+      message.creator = "";
+    }
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
+    } else {
+      message.virtualNftSchemaCode = "";
+    }
+    if (object.proposalType !== undefined && object.proposalType !== null) {
+      message.proposalType = proposalTypeFromJSON(object.proposalType);
+    } else {
+      message.proposalType = 0;
+    }
+    if (object.registry !== undefined && object.registry !== null) {
+      for (const e of object.registry) {
+        message.registry.push(VirtualSchemaRegistryRequest.fromJSON(e));
+      }
+    }
+    if (object.actions !== undefined && object.actions !== null) {
+      for (const e of object.actions) {
+        message.actions.push(Action.fromJSON(e));
+      }
+    }
+    if (object.executors !== undefined && object.executors !== null) {
+      for (const e of object.executors) {
+        message.executors.push(String(e));
+      }
+    }
+    if (object.enable !== undefined && object.enable !== null) {
+      message.enable = Boolean(object.enable);
+    } else {
+      message.enable = false;
+    }
+    return message;
+  },
+
+  toJSON(message: MsgProposalVirtualSchema): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.virtualNftSchemaCode !== undefined &&
+      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
+    message.proposalType !== undefined &&
+      (obj.proposalType = proposalTypeToJSON(message.proposalType));
+    if (message.registry) {
+      obj.registry = message.registry.map((e) =>
+        e ? VirtualSchemaRegistryRequest.toJSON(e) : undefined
+      );
+    } else {
+      obj.registry = [];
+    }
+    if (message.actions) {
+      obj.actions = message.actions.map((e) =>
+        e ? Action.toJSON(e) : undefined
+      );
+    } else {
+      obj.actions = [];
+    }
+    if (message.executors) {
+      obj.executors = message.executors.map((e) => e);
+    } else {
+      obj.executors = [];
+    }
+    message.enable !== undefined && (obj.enable = message.enable);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<MsgProposalVirtualSchema>
+  ): MsgProposalVirtualSchema {
+    const message = {
+      ...baseMsgProposalVirtualSchema,
+    } as MsgProposalVirtualSchema;
+    message.registry = [];
+    message.actions = [];
+    message.executors = [];
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = object.creator;
+    } else {
+      message.creator = "";
+    }
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
+    } else {
+      message.virtualNftSchemaCode = "";
+    }
+    if (object.proposalType !== undefined && object.proposalType !== null) {
+      message.proposalType = object.proposalType;
+    } else {
+      message.proposalType = 0;
+    }
+    if (object.registry !== undefined && object.registry !== null) {
+      for (const e of object.registry) {
+        message.registry.push(VirtualSchemaRegistryRequest.fromPartial(e));
+      }
+    }
+    if (object.actions !== undefined && object.actions !== null) {
+      for (const e of object.actions) {
+        message.actions.push(Action.fromPartial(e));
+      }
+    }
+    if (object.executors !== undefined && object.executors !== null) {
+      for (const e of object.executors) {
+        message.executors.push(e);
+      }
+    }
+    if (object.enable !== undefined && object.enable !== null) {
+      message.enable = object.enable;
+    } else {
+      message.enable = false;
+    }
+    return message;
+  },
+};
+
+const baseMsgProposalVirtualSchemaResponse: object = {
+  id: "",
+  virtualNftSchemaCode: "",
+  proposalType: 0,
+};
+
+export const MsgProposalVirtualSchemaResponse = {
+  encode(
+    message: MsgProposalVirtualSchemaResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.virtualNftSchemaCode !== "") {
+      writer.uint32(18).string(message.virtualNftSchemaCode);
+    }
+    if (message.proposalType !== 0) {
+      writer.uint32(24).int32(message.proposalType);
+    }
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): MsgProposalVirtualSchemaResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseMsgProposalVirtualSchemaResponse,
+    } as MsgProposalVirtualSchemaResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
+        case 2:
+          message.virtualNftSchemaCode = reader.string();
+          break;
+        case 3:
+          message.proposalType = reader.int32() as any;
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgProposalVirtualSchemaResponse {
+    const message = {
+      ...baseMsgProposalVirtualSchemaResponse,
+    } as MsgProposalVirtualSchemaResponse;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
+    } else {
+      message.virtualNftSchemaCode = "";
+    }
+    if (object.proposalType !== undefined && object.proposalType !== null) {
+      message.proposalType = proposalTypeFromJSON(object.proposalType);
+    } else {
+      message.proposalType = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: MsgProposalVirtualSchemaResponse): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    message.virtualNftSchemaCode !== undefined &&
+      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
+    message.proposalType !== undefined &&
+      (obj.proposalType = proposalTypeToJSON(message.proposalType));
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<MsgProposalVirtualSchemaResponse>
+  ): MsgProposalVirtualSchemaResponse {
+    const message = {
+      ...baseMsgProposalVirtualSchemaResponse,
+    } as MsgProposalVirtualSchemaResponse;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
+    } else {
+      message.virtualNftSchemaCode = "";
+    }
+    if (object.proposalType !== undefined && object.proposalType !== null) {
+      message.proposalType = object.proposalType;
+    } else {
+      message.proposalType = 0;
+    }
+    return message;
+  },
+};
+
+const baseMsgVoteVirtualSchemaProposal: object = {
+  creator: "",
+  id: "",
+  nftSchemaCode: "",
+  option: 0,
+};
+
+export const MsgVoteVirtualSchemaProposal = {
+  encode(
+    message: MsgVoteVirtualSchemaProposal,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.creator !== "") {
+      writer.uint32(10).string(message.creator);
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.nftSchemaCode !== "") {
+      writer.uint32(26).string(message.nftSchemaCode);
+    }
+    if (message.option !== 0) {
+      writer.uint32(32).int32(message.option);
+    }
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): MsgVoteVirtualSchemaProposal {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposal,
+    } as MsgVoteVirtualSchemaProposal;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.creator = reader.string();
+          break;
+        case 2:
+          message.id = reader.string();
+          break;
+        case 3:
+          message.nftSchemaCode = reader.string();
+          break;
+        case 4:
+          message.option = reader.int32() as any;
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MsgVoteVirtualSchemaProposal {
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposal,
+    } as MsgVoteVirtualSchemaProposal;
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = String(object.creator);
+    } else {
+      message.creator = "";
+    }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = String(object.nftSchemaCode);
+    } else {
+      message.nftSchemaCode = "";
+    }
+    if (object.option !== undefined && object.option !== null) {
+      message.option = registryStatusFromJSON(object.option);
+    } else {
+      message.option = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: MsgVoteVirtualSchemaProposal): unknown {
+    const obj: any = {};
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.id !== undefined && (obj.id = message.id);
+    message.nftSchemaCode !== undefined &&
+      (obj.nftSchemaCode = message.nftSchemaCode);
+    message.option !== undefined &&
+      (obj.option = registryStatusToJSON(message.option));
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<MsgVoteVirtualSchemaProposal>
+  ): MsgVoteVirtualSchemaProposal {
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposal,
+    } as MsgVoteVirtualSchemaProposal;
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = object.creator;
+    } else {
+      message.creator = "";
+    }
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = object.nftSchemaCode;
+    } else {
+      message.nftSchemaCode = "";
+    }
+    if (object.option !== undefined && object.option !== null) {
+      message.option = object.option;
+    } else {
+      message.option = 0;
+    }
+    return message;
+  },
+};
+
+const baseMsgVoteVirtualSchemaProposalResponse: object = {};
+
+export const MsgVoteVirtualSchemaProposalResponse = {
+  encode(
+    _: MsgVoteVirtualSchemaProposalResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): MsgVoteVirtualSchemaProposalResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposalResponse,
+    } as MsgVoteVirtualSchemaProposalResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): MsgVoteVirtualSchemaProposalResponse {
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposalResponse,
+    } as MsgVoteVirtualSchemaProposalResponse;
+    return message;
+  },
+
+  toJSON(_: MsgVoteVirtualSchemaProposalResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<MsgVoteVirtualSchemaProposalResponse>
+  ): MsgVoteVirtualSchemaProposalResponse {
+    const message = {
+      ...baseMsgVoteVirtualSchemaProposalResponse,
+    } as MsgVoteVirtualSchemaProposalResponse;
+    return message;
+  },
+};
+
 /** Msg defines the Msg service. */
 export interface Msg {
   CreateNFTSchema(
@@ -7112,9 +6574,6 @@ export interface Msg {
   ChangeOrgOwner(
     request: MsgChangeOrgOwner
   ): Promise<MsgChangeOrgOwnerResponse>;
-  CreateMultiMetadata(
-    request: MsgCreateMultiMetadata
-  ): Promise<MsgCreateMultiMetadataResponse>;
   SetUriRetrievalMethod(
     request: MsgSetUriRetrievalMethod
   ): Promise<MsgSetUriRetrievalMethodResponse>;
@@ -7140,31 +6599,16 @@ export interface Msg {
     request: MsgUpdateSchemaAttribute
   ): Promise<MsgUpdateSchemaAttributeResponse>;
   UpdateAction(request: MsgUpdateAction): Promise<MsgUpdateActionResponse>;
-  CreateVirtualAction(
-    request: MsgCreateVirtualAction
-  ): Promise<MsgCreateVirtualActionResponse>;
-  UpdateVirtualAction(
-    request: MsgUpdateVirtualAction
-  ): Promise<MsgUpdateVirtualActionResponse>;
-  DeleteVirtualAction(
-    request: MsgDeleteVirtualAction
-  ): Promise<MsgDeleteVirtualActionResponse>;
-  CreateVirtualSchemaProposal(
-    request: MsgCreateVirtualSchemaProposal
-  ): Promise<MsgCreateVirtualSchemaResponse>;
-  DeleteVirtualSchema(
-    request: MsgDeleteVirtualSchema
-  ): Promise<MsgDeleteVirtualSchemaResponse>;
-  VoteCreateVirtualSchema(
-    request: MsgVoteCreateVirtualSchema
-  ): Promise<MsgVoteCreateVirtualSchemaResponse>;
-  DisableVirtualSchemaProposal(
-    request: MsgDisableVirtualSchemaProposal
-  ): Promise<MsgDisableVirtualSchemaProposalResponse>;
-  /** this line is used by starport scaffolding # proto/tx/rpc */
+  ProposalVirtualSchema(
+    request: MsgProposalVirtualSchema
+  ): Promise<MsgProposalVirtualSchemaResponse>;
   PerformVirtualAction(
     request: MsgPerformVirtualAction
   ): Promise<MsgPerformVirtualActionResponse>;
+  /** this line is used by starport scaffolding # proto/tx/rpc */
+  VoteVirtualSchemaProposal(
+    request: MsgVoteVirtualSchemaProposal
+  ): Promise<MsgVoteVirtualSchemaProposalResponse>;
 }
 
 export class MsgClientImpl implements Msg {
@@ -7342,20 +6786,6 @@ export class MsgClientImpl implements Msg {
     );
   }
 
-  CreateMultiMetadata(
-    request: MsgCreateMultiMetadata
-  ): Promise<MsgCreateMultiMetadataResponse> {
-    const data = MsgCreateMultiMetadata.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "CreateMultiMetadata",
-      data
-    );
-    return promise.then((data) =>
-      MsgCreateMultiMetadataResponse.decode(new Reader(data))
-    );
-  }
-
   SetUriRetrievalMethod(
     request: MsgSetUriRetrievalMethod
   ): Promise<MsgSetUriRetrievalMethodResponse> {
@@ -7480,101 +6910,17 @@ export class MsgClientImpl implements Msg {
     );
   }
 
-  CreateVirtualAction(
-    request: MsgCreateVirtualAction
-  ): Promise<MsgCreateVirtualActionResponse> {
-    const data = MsgCreateVirtualAction.encode(request).finish();
+  ProposalVirtualSchema(
+    request: MsgProposalVirtualSchema
+  ): Promise<MsgProposalVirtualSchemaResponse> {
+    const data = MsgProposalVirtualSchema.encode(request).finish();
     const promise = this.rpc.request(
       "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "CreateVirtualAction",
+      "ProposalVirtualSchema",
       data
     );
     return promise.then((data) =>
-      MsgCreateVirtualActionResponse.decode(new Reader(data))
-    );
-  }
-
-  UpdateVirtualAction(
-    request: MsgUpdateVirtualAction
-  ): Promise<MsgUpdateVirtualActionResponse> {
-    const data = MsgUpdateVirtualAction.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "UpdateVirtualAction",
-      data
-    );
-    return promise.then((data) =>
-      MsgUpdateVirtualActionResponse.decode(new Reader(data))
-    );
-  }
-
-  DeleteVirtualAction(
-    request: MsgDeleteVirtualAction
-  ): Promise<MsgDeleteVirtualActionResponse> {
-    const data = MsgDeleteVirtualAction.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "DeleteVirtualAction",
-      data
-    );
-    return promise.then((data) =>
-      MsgDeleteVirtualActionResponse.decode(new Reader(data))
-    );
-  }
-
-  CreateVirtualSchemaProposal(
-    request: MsgCreateVirtualSchemaProposal
-  ): Promise<MsgCreateVirtualSchemaResponse> {
-    const data = MsgCreateVirtualSchemaProposal.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "CreateVirtualSchemaProposal",
-      data
-    );
-    return promise.then((data) =>
-      MsgCreateVirtualSchemaResponse.decode(new Reader(data))
-    );
-  }
-
-  DeleteVirtualSchema(
-    request: MsgDeleteVirtualSchema
-  ): Promise<MsgDeleteVirtualSchemaResponse> {
-    const data = MsgDeleteVirtualSchema.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "DeleteVirtualSchema",
-      data
-    );
-    return promise.then((data) =>
-      MsgDeleteVirtualSchemaResponse.decode(new Reader(data))
-    );
-  }
-
-  VoteCreateVirtualSchema(
-    request: MsgVoteCreateVirtualSchema
-  ): Promise<MsgVoteCreateVirtualSchemaResponse> {
-    const data = MsgVoteCreateVirtualSchema.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "VoteCreateVirtualSchema",
-      data
-    );
-    return promise.then((data) =>
-      MsgVoteCreateVirtualSchemaResponse.decode(new Reader(data))
-    );
-  }
-
-  DisableVirtualSchemaProposal(
-    request: MsgDisableVirtualSchemaProposal
-  ): Promise<MsgDisableVirtualSchemaProposalResponse> {
-    const data = MsgDisableVirtualSchemaProposal.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Msg",
-      "DisableVirtualSchemaProposal",
-      data
-    );
-    return promise.then((data) =>
-      MsgDisableVirtualSchemaProposalResponse.decode(new Reader(data))
+      MsgProposalVirtualSchemaResponse.decode(new Reader(data))
     );
   }
 
@@ -7589,6 +6935,20 @@ export class MsgClientImpl implements Msg {
     );
     return promise.then((data) =>
       MsgPerformVirtualActionResponse.decode(new Reader(data))
+    );
+  }
+
+  VoteVirtualSchemaProposal(
+    request: MsgVoteVirtualSchemaProposal
+  ): Promise<MsgVoteVirtualSchemaProposalResponse> {
+    const data = MsgVoteVirtualSchemaProposal.encode(request).finish();
+    const promise = this.rpc.request(
+      "thesixnetwork.sixprotocol.nftmngr.Msg",
+      "VoteVirtualSchemaProposal",
+      data
+    );
+    return promise.then((data) =>
+      MsgVoteVirtualSchemaProposalResponse.decode(new Reader(data))
     );
   }
 }

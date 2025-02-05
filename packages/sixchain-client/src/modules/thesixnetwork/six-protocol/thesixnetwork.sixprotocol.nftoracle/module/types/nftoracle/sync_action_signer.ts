@@ -34,6 +34,7 @@ export interface ParameterSyncSignerByOracle {
   owner_address: string;
   /** get from smart contract */
   actor_address: string;
+  /** get from smart contract */
   expire_epoch: string;
 }
 

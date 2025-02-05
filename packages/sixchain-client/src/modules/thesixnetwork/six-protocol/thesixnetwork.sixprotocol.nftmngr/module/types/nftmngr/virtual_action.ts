@@ -9,37 +9,32 @@ import { Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "thesixnetwork.sixprotocol.nftmngr";
 
-/**
- * TODO:
- * 1. Policy of action (who can use action)
- * 2. Proposal to enable and disable action
- */
 export interface VirtualAction {
-  nftSchemaCode: string;
+  virtualNftSchemaCode: string;
   name: string;
   desc: string;
   disable: boolean;
   when: string;
   then: string[];
   /** NOTE: Policy of virtual action */
-  allowedActioner: AllowedActioner;
+  allowed_actioner: AllowedActioner;
   params: ActionParams[];
 }
 
 const baseVirtualAction: object = {
-  nftSchemaCode: "",
+  virtualNftSchemaCode: "",
   name: "",
   desc: "",
   disable: false,
   when: "",
   then: "",
-  allowedActioner: 0,
+  allowed_actioner: 0,
 };
 
 export const VirtualAction = {
   encode(message: VirtualAction, writer: Writer = Writer.create()): Writer {
-    if (message.nftSchemaCode !== "") {
-      writer.uint32(10).string(message.nftSchemaCode);
+    if (message.virtualNftSchemaCode !== "") {
+      writer.uint32(10).string(message.virtualNftSchemaCode);
     }
     if (message.name !== "") {
       writer.uint32(18).string(message.name);
@@ -56,8 +51,8 @@ export const VirtualAction = {
     for (const v of message.then) {
       writer.uint32(50).string(v!);
     }
-    if (message.allowedActioner !== 0) {
-      writer.uint32(56).int32(message.allowedActioner);
+    if (message.allowed_actioner !== 0) {
+      writer.uint32(56).int32(message.allowed_actioner);
     }
     for (const v of message.params) {
       ActionParams.encode(v!, writer.uint32(66).fork()).ldelim();
@@ -75,7 +70,7 @@ export const VirtualAction = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.nftSchemaCode = reader.string();
+          message.virtualNftSchemaCode = reader.string();
           break;
         case 2:
           message.name = reader.string();
@@ -93,7 +88,7 @@ export const VirtualAction = {
           message.then.push(reader.string());
           break;
         case 7:
-          message.allowedActioner = reader.int32() as any;
+          message.allowed_actioner = reader.int32() as any;
           break;
         case 8:
           message.params.push(ActionParams.decode(reader, reader.uint32()));
@@ -110,10 +105,13 @@ export const VirtualAction = {
     const message = { ...baseVirtualAction } as VirtualAction;
     message.then = [];
     message.params = [];
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = String(object.nftSchemaCode);
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = String(object.virtualNftSchemaCode);
     } else {
-      message.nftSchemaCode = "";
+      message.virtualNftSchemaCode = "";
     }
     if (object.name !== undefined && object.name !== null) {
       message.name = String(object.name);
@@ -141,12 +139,14 @@ export const VirtualAction = {
       }
     }
     if (
-      object.allowedActioner !== undefined &&
-      object.allowedActioner !== null
+      object.allowed_actioner !== undefined &&
+      object.allowed_actioner !== null
     ) {
-      message.allowedActioner = allowedActionerFromJSON(object.allowedActioner);
+      message.allowed_actioner = allowedActionerFromJSON(
+        object.allowed_actioner
+      );
     } else {
-      message.allowedActioner = 0;
+      message.allowed_actioner = 0;
     }
     if (object.params !== undefined && object.params !== null) {
       for (const e of object.params) {
@@ -158,8 +158,8 @@ export const VirtualAction = {
 
   toJSON(message: VirtualAction): unknown {
     const obj: any = {};
-    message.nftSchemaCode !== undefined &&
-      (obj.nftSchemaCode = message.nftSchemaCode);
+    message.virtualNftSchemaCode !== undefined &&
+      (obj.virtualNftSchemaCode = message.virtualNftSchemaCode);
     message.name !== undefined && (obj.name = message.name);
     message.desc !== undefined && (obj.desc = message.desc);
     message.disable !== undefined && (obj.disable = message.disable);
@@ -169,8 +169,8 @@ export const VirtualAction = {
     } else {
       obj.then = [];
     }
-    message.allowedActioner !== undefined &&
-      (obj.allowedActioner = allowedActionerToJSON(message.allowedActioner));
+    message.allowed_actioner !== undefined &&
+      (obj.allowed_actioner = allowedActionerToJSON(message.allowed_actioner));
     if (message.params) {
       obj.params = message.params.map((e) =>
         e ? ActionParams.toJSON(e) : undefined
@@ -185,10 +185,13 @@ export const VirtualAction = {
     const message = { ...baseVirtualAction } as VirtualAction;
     message.then = [];
     message.params = [];
-    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
-      message.nftSchemaCode = object.nftSchemaCode;
+    if (
+      object.virtualNftSchemaCode !== undefined &&
+      object.virtualNftSchemaCode !== null
+    ) {
+      message.virtualNftSchemaCode = object.virtualNftSchemaCode;
     } else {
-      message.nftSchemaCode = "";
+      message.virtualNftSchemaCode = "";
     }
     if (object.name !== undefined && object.name !== null) {
       message.name = object.name;
@@ -216,12 +219,12 @@ export const VirtualAction = {
       }
     }
     if (
-      object.allowedActioner !== undefined &&
-      object.allowedActioner !== null
+      object.allowed_actioner !== undefined &&
+      object.allowed_actioner !== null
     ) {
-      message.allowedActioner = object.allowedActioner;
+      message.allowed_actioner = object.allowed_actioner;
     } else {
-      message.allowedActioner = 0;
+      message.allowed_actioner = 0;
     }
     if (object.params !== undefined && object.params !== null) {
       for (const e of object.params) {

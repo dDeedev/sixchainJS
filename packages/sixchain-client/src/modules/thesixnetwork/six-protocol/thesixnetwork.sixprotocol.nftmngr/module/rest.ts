@@ -102,10 +102,6 @@ export enum NftmngrFeeDistributionMethod {
   TRANSFER = "TRANSFER",
 }
 
-export enum NftmngrFeeSubject {
-  CREATE_NFT_SCHEMA = "CREATE_NFT_SCHEMA",
-}
-
 export interface NftmngrFlagStatus {
   status_name?: string;
   status_value?: boolean;
@@ -152,40 +148,13 @@ export interface NftmngrMsgCreateMetadataResponse {
   tokenId?: string;
 }
 
-export interface NftmngrMsgCreateMultiMetadataResponse {
-  nftSchemaCode?: string;
-  tokenId?: string[];
-}
-
 export interface NftmngrMsgCreateNFTSchemaResponse {
   code?: string;
-}
-
-export interface NftmngrMsgCreateVirtualActionResponse {
-  nftSchemaCode?: string;
-  virtualAction?: SixprotocolnftmngrVirtualAction[];
-}
-
-export interface NftmngrMsgCreateVirtualSchemaResponse {
-  id?: string;
-  virtualNftSchemaCode?: string;
 }
 
 export interface NftmngrMsgDeleteActionExecutorResponse {
   nftSchemaCode?: string;
   executorAddress?: string;
-}
-
-export interface NftmngrMsgDeleteVirtualActionResponse {
-  creator?: string;
-  status?: string;
-}
-
-export type NftmngrMsgDeleteVirtualSchemaResponse = object;
-
-export interface NftmngrMsgDisableVirtualSchemaProposalResponse {
-  creator?: string;
-  proposalId?: string;
 }
 
 export interface NftmngrMsgPerformActionByAdminResponse {
@@ -195,6 +164,12 @@ export interface NftmngrMsgPerformActionByAdminResponse {
 
 export interface NftmngrMsgPerformVirtualActionResponse {
   nftSchemaName?: string;
+}
+
+export interface NftmngrMsgProposalVirtualSchemaResponse {
+  id?: string;
+  virtualNftSchemaCode?: string;
+  proposalType?: NftmngrProposalType;
 }
 
 export interface NftmngrMsgResyncAttributesResponse {
@@ -258,12 +233,18 @@ export interface NftmngrMsgUpdateSchemaAttributeResponse {
   name?: string;
 }
 
-export interface NftmngrMsgUpdateVirtualActionResponse {
-  nftSchemaCode?: string;
-  virtualAction?: SixprotocolnftmngrVirtualAction[];
-}
+export type NftmngrMsgVoteVirtualSchemaProposalResponse = object;
 
-export type NftmngrMsgVoteCreateVirtualSchemaResponse = object;
+export interface NftmngrNFTSchemaQueryResult {
+  code?: string;
+  name?: string;
+  owner?: string;
+  description?: string;
+  origin_data?: NftmngrOriginData;
+  onchain_data?: NftmngrOnChainDataResult;
+  isVerified?: boolean;
+  mint_authorization?: string;
+}
 
 export interface NftmngrNftAttributeValue {
   name?: string;
@@ -279,10 +260,11 @@ export interface NftmngrNumberAttributeValue {
   value?: string;
 }
 
-export interface NftmngrOnChainData {
+export interface NftmngrOnChainDataResult {
   nft_attributes?: NftmngrAttributeDefinition[];
   token_attributes?: NftmngrAttributeDefinition[];
   actions?: NftmngrAction[];
+  virtual_actions?: SixprotocolnftmngrVirtualAction[];
   status?: NftmngrFlagStatus[];
 }
 
@@ -307,6 +289,11 @@ export interface NftmngrOriginData {
 export enum NftmngrOwnerAddressType {
   ORIGIN_ADDRESS = "ORIGIN_ADDRESS",
   INTERNAL_ADDRESS = "INTERNAL_ADDRESS",
+}
+
+export enum NftmngrProposalType {
+  CREATE = "CREATE",
+  EDIT = "EDIT",
 }
 
 export interface NftmngrQueryAllActionByRefIdResponse {
@@ -354,8 +341,8 @@ export interface NftmngrQueryAllActionOfSchemaResponse {
   pagination?: V1Beta1PageResponse;
 }
 
-export interface NftmngrQueryAllDisableVirtualSchemaResponse {
-  disableVirtualSchema?: SixprotocolnftmngrDisableVirtualSchema[];
+export interface NftmngrQueryAllExecutorOfSchemaResponse {
+  executorOfSchema?: SixprotocolnftmngrExecutorOfSchema[];
 
   /**
    * PageResponse is to be embedded in gRPC response messages where the
@@ -369,8 +356,8 @@ export interface NftmngrQueryAllDisableVirtualSchemaResponse {
   pagination?: V1Beta1PageResponse;
 }
 
-export interface NftmngrQueryAllExecutorOfSchemaResponse {
-  executorOfSchema?: SixprotocolnftmngrExecutorOfSchema[];
+export interface NftmngrQueryAllLockSchemaFeeResponse {
+  lockSchemaFee?: SixprotocolnftmngrLockSchemaFee[];
 
   /**
    * PageResponse is to be embedded in gRPC response messages where the
@@ -415,7 +402,7 @@ export interface NftmngrQueryAllNFTSchemaByContractResponse {
 }
 
 export interface NftmngrQueryAllNFTSchemaResponse {
-  nFTSchema?: SixprotocolnftmngrNFTSchema[];
+  nFTSchema?: NftmngrNFTSchemaQueryResult[];
 
   /**
    * PageResponse is to be embedded in gRPC response messages where the
@@ -531,12 +518,12 @@ export interface NftmngrQueryGetActionOfSchemaResponse {
   actionOfSchema?: SixprotocolnftmngrActionOfSchema;
 }
 
-export interface NftmngrQueryGetDisableVirtualSchemaResponse {
-  disableVirtualSchema?: SixprotocolnftmngrDisableVirtualSchema;
-}
-
 export interface NftmngrQueryGetExecutorOfSchemaResponse {
   executorOfSchema?: SixprotocolnftmngrExecutorOfSchema;
+}
+
+export interface NftmngrQueryGetLockSchemaFeeResponse {
+  lockSchemaFee?: SixprotocolnftmngrLockSchemaFee;
 }
 
 export interface NftmngrQueryGetMetadataCreatorResponse {
@@ -556,7 +543,7 @@ export interface NftmngrQueryGetNFTSchemaByContractResponse {
 }
 
 export interface NftmngrQueryGetNFTSchemaResponse {
-  nFTSchema?: SixprotocolnftmngrNFTSchema;
+  nFTSchema?: NftmngrNFTSchemaQueryResult;
 }
 
 export interface NftmngrQueryGetNftCollectionResponse {
@@ -596,6 +583,10 @@ export interface NftmngrQueryGetVirtualSchemaProposalResponse {
 
 export interface NftmngrQueryGetVirtualSchemaResponse {
   virtualSchema?: SixprotocolnftmngrVirtualSchema;
+}
+
+export interface NftmngrQueryListActiveProposalResponse {
+  virtualSchemaProposal?: SixprotocolnftmngrVirtualSchemaProposal[];
 }
 
 export interface NftmngrQueryListAttributeBySchemaResponse {
@@ -639,13 +630,11 @@ export enum NftmngrURIRetrievalMethod {
 
 export interface NftmngrVirtualSchemaRegistry {
   nftSchemaCode?: string;
-  sharedAttributes?: string[];
-  status?: NftmngrRegistryStatus;
+  decision?: NftmngrRegistryStatus;
 }
 
 export interface NftmngrVirtualSchemaRegistryRequest {
   nftSchemaCode?: string;
-  sharedAttributes?: string[];
 }
 
 /**
@@ -794,15 +783,23 @@ export interface SixprotocolnftmngrActionOfSchema {
   index?: string;
 }
 
-export interface SixprotocolnftmngrDisableVirtualSchema {
-  id?: string;
-  virtualNftSchemaCode?: string;
-  proposalExpiredBlock?: string;
-}
-
 export interface SixprotocolnftmngrExecutorOfSchema {
   nftSchemaCode?: string;
   executorAddress?: string[];
+}
+
+export interface SixprotocolnftmngrLockSchemaFee {
+  id?: string;
+  virtualSchemaCode?: string;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   */
+  amount?: V1Beta1Coin;
+  proposer?: string;
 }
 
 export interface SixprotocolnftmngrMetadataCreator {
@@ -816,17 +813,6 @@ export interface SixprotocolnftmngrNFTFeeBalance {
 
 export interface SixprotocolnftmngrNFTFeeConfig {
   schema_fee?: NftmngrFeeConfig;
-}
-
-export interface SixprotocolnftmngrNFTSchema {
-  code?: string;
-  name?: string;
-  owner?: string;
-  description?: string;
-  origin_data?: NftmngrOriginData;
-  onchain_data?: NftmngrOnChainData;
-  isVerified?: boolean;
-  mint_authorization?: string;
 }
 
 export interface SixprotocolnftmngrNFTSchemaByContract {
@@ -865,13 +851,13 @@ export interface SixprotocolnftmngrSchemaAttribute {
 }
 
 export interface SixprotocolnftmngrVirtualAction {
-  nftSchemaCode?: string;
+  virtualNftSchemaCode?: string;
   name?: string;
   desc?: string;
   disable?: boolean;
   when?: string;
   then?: string[];
-  allowedActioner?: NftmngrAllowedActioner;
+  allowed_actioner?: NftmngrAllowedActioner;
   params?: NftmngrActionParams[];
 }
 
@@ -879,22 +865,34 @@ export interface SixprotocolnftmngrVirtualSchema {
   virtualNftSchemaCode?: string;
   registry?: NftmngrVirtualSchemaRegistry[];
   enable?: boolean;
-  expiredAtBlock?: string;
 }
 
 export interface SixprotocolnftmngrVirtualSchemaProposal {
   id?: string;
-  virtualSchemaCode?: string;
-  registry?: NftmngrVirtualSchemaRegistry[];
+  proposalType?: NftmngrProposalType;
+  virtualSchema?: SixprotocolnftmngrVirtualSchema;
+  actions?: NftmngrAction[];
+  executors?: string[];
 
   /** @format date-time */
   submitTime?: string;
 
   /** @format date-time */
-  votinStartTime?: string;
+  votingStartTime?: string;
 
   /** @format date-time */
   votingEndTime?: string;
+}
+
+/**
+* Coin defines a token with a denomination and an amount.
+
+NOTE: The amount field is an Int which implements the custom method
+signatures required by gogoproto.
+*/
+export interface V1Beta1Coin {
+  denom?: string;
+  amount?: string;
 }
 
 /**
@@ -1160,6 +1158,64 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * No description
    *
    * @tags Query
+   * @name QueryListActiveProposal
+   * @summary Queries a list of ListActiveProposal items.
+   * @request GET:/thesixnetwork/six-protocol/nftmngr/list_active_proposal
+   */
+  queryListActiveProposal = (params: RequestParams = {}) =>
+    this.request<NftmngrQueryListActiveProposalResponse, RpcStatus>({
+      path: `/thesixnetwork/six-protocol/nftmngr/list_active_proposal`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryLockSchemaFeeAll
+   * @summary Queries a list of LockSchemaFee items.
+   * @request GET:/thesixnetwork/six-protocol/nftmngr/lock_schema_fee
+   */
+  queryLockSchemaFeeAll = (
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<NftmngrQueryAllLockSchemaFeeResponse, RpcStatus>({
+      path: `/thesixnetwork/six-protocol/nftmngr/lock_schema_fee`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryLockSchemaFee
+   * @summary Queries a LockSchemaFee by index.
+   * @request GET:/thesixnetwork/six-protocol/nftmngr/lock_schema_fee/{index}
+   */
+  queryLockSchemaFee = (index: string, params: RequestParams = {}) =>
+    this.request<NftmngrQueryGetLockSchemaFeeResponse, RpcStatus>({
+      path: `/thesixnetwork/six-protocol/nftmngr/lock_schema_fee/${index}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
    * @name QueryActionByRefIdAll
    * @summary Queries a list of ActionByRefId items.
    * @request GET:/thesixnetwork/sixnft/nftmngr/action_by_ref_id
@@ -1277,48 +1333,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   queryActionOfSchema = (nftSchemaCode: string, name: string, params: RequestParams = {}) =>
     this.request<NftmngrQueryGetActionOfSchemaResponse, RpcStatus>({
       path: `/thesixnetwork/sixnft/nftmngr/action_of_schema/${nftSchemaCode}/${name}`,
-      method: "GET",
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryDisableVirtualSchemaAll
-   * @summary Queries a list of DisableVirtualSchema items.
-   * @request GET:/thesixnetwork/sixnft/nftmngr/disable_virtual_schema
-   */
-  queryDisableVirtualSchemaAll = (
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<NftmngrQueryAllDisableVirtualSchemaResponse, RpcStatus>({
-      path: `/thesixnetwork/sixnft/nftmngr/disable_virtual_schema`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryDisableVirtualSchema
-   * @summary Queries a DisableVirtualSchema by index.
-   * @request GET:/thesixnetwork/sixnft/nftmngr/disable_virtual_schema/{index}
-   */
-  queryDisableVirtualSchema = (index: string, params: RequestParams = {}) =>
-    this.request<NftmngrQueryGetDisableVirtualSchemaResponse, RpcStatus>({
-      path: `/thesixnetwork/sixnft/nftmngr/disable_virtual_schema/${index}`,
       method: "GET",
       format: "json",
       ...params,
@@ -1684,6 +1698,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   querySchemaAttributeAll = (
     query?: {
+      nftSchemaCode?: string;
       "pagination.key"?: string;
       "pagination.offset"?: string;
       "pagination.limit"?: string;
@@ -1726,6 +1741,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryVirtualActionAll = (
     query?: {
+      nftSchemaCode?: string;
       "pagination.key"?: string;
       "pagination.offset"?: string;
       "pagination.limit"?: string;

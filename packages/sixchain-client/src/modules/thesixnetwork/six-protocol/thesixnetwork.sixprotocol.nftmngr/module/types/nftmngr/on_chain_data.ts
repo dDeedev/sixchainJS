@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { AttributeDefinition } from "../nftmngr/attribute_definition";
 import { Action } from "../nftmngr/action";
+import { VirtualAction } from "../nftmngr/virtual_action";
 import { Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "thesixnetwork.sixprotocol.nftmngr";
@@ -14,6 +15,14 @@ export interface OnChainData {
   nft_attributes: AttributeDefinition[];
   token_attributes: AttributeDefinition[];
   actions: Action[];
+  status: FlagStatus[];
+}
+
+export interface OnChainDataResult {
+  nft_attributes: AttributeDefinition[];
+  token_attributes: AttributeDefinition[];
+  actions: Action[];
+  virtual_actions: VirtualAction[];
   status: FlagStatus[];
 }
 
@@ -232,6 +241,192 @@ export const OnChainData = {
     if (object.actions !== undefined && object.actions !== null) {
       for (const e of object.actions) {
         message.actions.push(Action.fromPartial(e));
+      }
+    }
+    if (object.status !== undefined && object.status !== null) {
+      for (const e of object.status) {
+        message.status.push(FlagStatus.fromPartial(e));
+      }
+    }
+    return message;
+  },
+};
+
+const baseOnChainDataResult: object = {};
+
+export const OnChainDataResult = {
+  encode(message: OnChainDataResult, writer: Writer = Writer.create()): Writer {
+    for (const v of message.nft_attributes) {
+      AttributeDefinition.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    for (const v of message.token_attributes) {
+      AttributeDefinition.encode(v!, writer.uint32(18).fork()).ldelim();
+    }
+    for (const v of message.actions) {
+      Action.encode(v!, writer.uint32(26).fork()).ldelim();
+    }
+    for (const v of message.virtual_actions) {
+      VirtualAction.encode(v!, writer.uint32(34).fork()).ldelim();
+    }
+    for (const v of message.status) {
+      FlagStatus.encode(v!, writer.uint32(42).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): OnChainDataResult {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseOnChainDataResult } as OnChainDataResult;
+    message.nft_attributes = [];
+    message.token_attributes = [];
+    message.actions = [];
+    message.virtual_actions = [];
+    message.status = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.nft_attributes.push(
+            AttributeDefinition.decode(reader, reader.uint32())
+          );
+          break;
+        case 2:
+          message.token_attributes.push(
+            AttributeDefinition.decode(reader, reader.uint32())
+          );
+          break;
+        case 3:
+          message.actions.push(Action.decode(reader, reader.uint32()));
+          break;
+        case 4:
+          message.virtual_actions.push(
+            VirtualAction.decode(reader, reader.uint32())
+          );
+          break;
+        case 5:
+          message.status.push(FlagStatus.decode(reader, reader.uint32()));
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): OnChainDataResult {
+    const message = { ...baseOnChainDataResult } as OnChainDataResult;
+    message.nft_attributes = [];
+    message.token_attributes = [];
+    message.actions = [];
+    message.virtual_actions = [];
+    message.status = [];
+    if (object.nft_attributes !== undefined && object.nft_attributes !== null) {
+      for (const e of object.nft_attributes) {
+        message.nft_attributes.push(AttributeDefinition.fromJSON(e));
+      }
+    }
+    if (
+      object.token_attributes !== undefined &&
+      object.token_attributes !== null
+    ) {
+      for (const e of object.token_attributes) {
+        message.token_attributes.push(AttributeDefinition.fromJSON(e));
+      }
+    }
+    if (object.actions !== undefined && object.actions !== null) {
+      for (const e of object.actions) {
+        message.actions.push(Action.fromJSON(e));
+      }
+    }
+    if (
+      object.virtual_actions !== undefined &&
+      object.virtual_actions !== null
+    ) {
+      for (const e of object.virtual_actions) {
+        message.virtual_actions.push(VirtualAction.fromJSON(e));
+      }
+    }
+    if (object.status !== undefined && object.status !== null) {
+      for (const e of object.status) {
+        message.status.push(FlagStatus.fromJSON(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: OnChainDataResult): unknown {
+    const obj: any = {};
+    if (message.nft_attributes) {
+      obj.nft_attributes = message.nft_attributes.map((e) =>
+        e ? AttributeDefinition.toJSON(e) : undefined
+      );
+    } else {
+      obj.nft_attributes = [];
+    }
+    if (message.token_attributes) {
+      obj.token_attributes = message.token_attributes.map((e) =>
+        e ? AttributeDefinition.toJSON(e) : undefined
+      );
+    } else {
+      obj.token_attributes = [];
+    }
+    if (message.actions) {
+      obj.actions = message.actions.map((e) =>
+        e ? Action.toJSON(e) : undefined
+      );
+    } else {
+      obj.actions = [];
+    }
+    if (message.virtual_actions) {
+      obj.virtual_actions = message.virtual_actions.map((e) =>
+        e ? VirtualAction.toJSON(e) : undefined
+      );
+    } else {
+      obj.virtual_actions = [];
+    }
+    if (message.status) {
+      obj.status = message.status.map((e) =>
+        e ? FlagStatus.toJSON(e) : undefined
+      );
+    } else {
+      obj.status = [];
+    }
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<OnChainDataResult>): OnChainDataResult {
+    const message = { ...baseOnChainDataResult } as OnChainDataResult;
+    message.nft_attributes = [];
+    message.token_attributes = [];
+    message.actions = [];
+    message.virtual_actions = [];
+    message.status = [];
+    if (object.nft_attributes !== undefined && object.nft_attributes !== null) {
+      for (const e of object.nft_attributes) {
+        message.nft_attributes.push(AttributeDefinition.fromPartial(e));
+      }
+    }
+    if (
+      object.token_attributes !== undefined &&
+      object.token_attributes !== null
+    ) {
+      for (const e of object.token_attributes) {
+        message.token_attributes.push(AttributeDefinition.fromPartial(e));
+      }
+    }
+    if (object.actions !== undefined && object.actions !== null) {
+      for (const e of object.actions) {
+        message.actions.push(Action.fromPartial(e));
+      }
+    }
+    if (
+      object.virtual_actions !== undefined &&
+      object.virtual_actions !== null
+    ) {
+      for (const e of object.virtual_actions) {
+        message.virtual_actions.push(VirtualAction.fromPartial(e));
       }
     }
     if (object.status !== undefined && object.status !== null) {

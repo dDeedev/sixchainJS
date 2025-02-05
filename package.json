@@ -2,7 +2,7 @@
   "name": "sixchain-js",
   "version": "0.0.1",
   "author": "sixnetwork <hamdee@six.network>",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/thesixnetwork/sixchain-sdk"

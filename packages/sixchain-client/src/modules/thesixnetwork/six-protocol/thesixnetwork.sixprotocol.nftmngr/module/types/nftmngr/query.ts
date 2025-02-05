@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { Reader, Writer } from "protobufjs/minimal";
 import { Params } from "../nftmngr/params";
-import { NFTSchema } from "../nftmngr/nft_schema";
+import { NFTSchemaQueryResult } from "../nftmngr/nft_schema";
 import {
   PageRequest,
   PageResponse,
@@ -21,10 +21,8 @@ import { VirtualAction } from "../nftmngr/virtual_action";
 import {
   VirtualSchema,
   VirtualSchemaProposal,
-  ActiveVirtualSchemaProposal,
-  InactiveVirtualSchemaProposal,
 } from "../nftmngr/virtual_schema";
-import { DisableVirtualSchema } from "../nftmngr/disable_virtual_schema";
+import { LockSchemaFee } from "../nftmngr/lock_schema_fee";
 
 export const protobufPackage = "thesixnetwork.sixprotocol.nftmngr";
 
@@ -42,7 +40,7 @@ export interface QueryGetNFTSchemaRequest {
 }
 
 export interface QueryGetNFTSchemaResponse {
-  nFTSchema: NFTSchema | undefined;
+  nFTSchema: NFTSchemaQueryResult | undefined;
 }
 
 export interface QueryAllNFTSchemaRequest {
@@ -50,7 +48,7 @@ export interface QueryAllNFTSchemaRequest {
 }
 
 export interface QueryAllNFTSchemaResponse {
-  nFTSchema: NFTSchema[];
+  nFTSchema: NFTSchemaQueryResult[];
   pagination: PageResponse | undefined;
 }
 
@@ -192,6 +190,7 @@ export interface QueryGetSchemaAttributeResponse {
 }
 
 export interface QueryAllSchemaAttributeRequest {
+  nftSchemaCode: string;
   pagination: PageRequest | undefined;
 }
 
@@ -253,6 +252,7 @@ export interface QueryGetVirtualActionResponse {
 }
 
 export interface QueryAllVirtualActionRequest {
+  nftSchemaCode: string;
   pagination: PageRequest | undefined;
 }
 
@@ -278,23 +278,6 @@ export interface QueryAllVirtualSchemaResponse {
   pagination: PageResponse | undefined;
 }
 
-export interface QueryGetDisableVirtualSchemaRequest {
-  index: string;
-}
-
-export interface QueryGetDisableVirtualSchemaResponse {
-  disableVirtualSchema: DisableVirtualSchema | undefined;
-}
-
-export interface QueryAllDisableVirtualSchemaRequest {
-  pagination: PageRequest | undefined;
-}
-
-export interface QueryAllDisableVirtualSchemaResponse {
-  disableVirtualSchema: DisableVirtualSchema[];
-  pagination: PageResponse | undefined;
-}
-
 export interface QueryGetVirtualSchemaProposalRequest {
   index: string;
 }
@@ -312,37 +295,26 @@ export interface QueryAllVirtualSchemaProposalResponse {
   pagination: PageResponse | undefined;
 }
 
-export interface QueryGetActiveVirtualSchemaProposalRequest {
+export interface QueryListActiveProposalRequest {}
+
+export interface QueryListActiveProposalResponse {
+  virtualSchemaProposal: VirtualSchemaProposal[];
+}
+
+export interface QueryGetLockSchemaFeeRequest {
   index: string;
 }
 
-export interface QueryGetActiveVirtualSchemaProposalResponse {
-  activeVirtualSchemaProposal: ActiveVirtualSchemaProposal | undefined;
+export interface QueryGetLockSchemaFeeResponse {
+  lockSchemaFee: LockSchemaFee | undefined;
 }
 
-export interface QueryAllActiveVirtualSchemaProposalRequest {
+export interface QueryAllLockSchemaFeeRequest {
   pagination: PageRequest | undefined;
 }
 
-export interface QueryAllActiveVirtualSchemaProposalResponse {
-  activeVirtualSchemaProposal: ActiveVirtualSchemaProposal[];
-  pagination: PageResponse | undefined;
-}
-
-export interface QueryGetInactiveVirtualSchemaProposalRequest {
-  index: string;
-}
-
-export interface QueryGetInactiveVirtualSchemaProposalResponse {
-  inactiveVirtualSchemaProposal: InactiveVirtualSchemaProposal | undefined;
-}
-
-export interface QueryAllInactiveVirtualSchemaProposalRequest {
-  pagination: PageRequest | undefined;
-}
-
-export interface QueryAllInactiveVirtualSchemaProposalResponse {
-  inactiveVirtualSchemaProposal: InactiveVirtualSchemaProposal[];
+export interface QueryAllLockSchemaFeeResponse {
+  lockSchemaFee: LockSchemaFee[];
   pagination: PageResponse | undefined;
 }
 
@@ -520,7 +492,10 @@ export const QueryGetNFTSchemaResponse = {
     writer: Writer = Writer.create()
   ): Writer {
     if (message.nFTSchema !== undefined) {
-      NFTSchema.encode(message.nFTSchema, writer.uint32(10).fork()).ldelim();
+      NFTSchemaQueryResult.encode(
+        message.nFTSchema,
+        writer.uint32(10).fork()
+      ).ldelim();
     }
     return writer;
   },
@@ -538,7 +513,10 @@ export const QueryGetNFTSchemaResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.nFTSchema = NFTSchema.decode(reader, reader.uint32());
+          message.nFTSchema = NFTSchemaQueryResult.decode(
+            reader,
+            reader.uint32()
+          );
           break;
         default:
           reader.skipType(tag & 7);
@@ -553,7 +531,7 @@ export const QueryGetNFTSchemaResponse = {
       ...baseQueryGetNFTSchemaResponse,
     } as QueryGetNFTSchemaResponse;
     if (object.nFTSchema !== undefined && object.nFTSchema !== null) {
-      message.nFTSchema = NFTSchema.fromJSON(object.nFTSchema);
+      message.nFTSchema = NFTSchemaQueryResult.fromJSON(object.nFTSchema);
     } else {
       message.nFTSchema = undefined;
     }
@@ -564,7 +542,7 @@ export const QueryGetNFTSchemaResponse = {
     const obj: any = {};
     message.nFTSchema !== undefined &&
       (obj.nFTSchema = message.nFTSchema
-        ? NFTSchema.toJSON(message.nFTSchema)
+        ? NFTSchemaQueryResult.toJSON(message.nFTSchema)
         : undefined);
     return obj;
   },
@@ -576,7 +554,7 @@ export const QueryGetNFTSchemaResponse = {
       ...baseQueryGetNFTSchemaResponse,
     } as QueryGetNFTSchemaResponse;
     if (object.nFTSchema !== undefined && object.nFTSchema !== null) {
-      message.nFTSchema = NFTSchema.fromPartial(object.nFTSchema);
+      message.nFTSchema = NFTSchemaQueryResult.fromPartial(object.nFTSchema);
     } else {
       message.nFTSchema = undefined;
     }
@@ -664,7 +642,7 @@ export const QueryAllNFTSchemaResponse = {
     writer: Writer = Writer.create()
   ): Writer {
     for (const v of message.nFTSchema) {
-      NFTSchema.encode(v!, writer.uint32(10).fork()).ldelim();
+      NFTSchemaQueryResult.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     if (message.pagination !== undefined) {
       PageResponse.encode(
@@ -689,7 +667,9 @@ export const QueryAllNFTSchemaResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.nFTSchema.push(NFTSchema.decode(reader, reader.uint32()));
+          message.nFTSchema.push(
+            NFTSchemaQueryResult.decode(reader, reader.uint32())
+          );
           break;
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32());
@@ -709,7 +689,7 @@ export const QueryAllNFTSchemaResponse = {
     message.nFTSchema = [];
     if (object.nFTSchema !== undefined && object.nFTSchema !== null) {
       for (const e of object.nFTSchema) {
-        message.nFTSchema.push(NFTSchema.fromJSON(e));
+        message.nFTSchema.push(NFTSchemaQueryResult.fromJSON(e));
       }
     }
     if (object.pagination !== undefined && object.pagination !== null) {
@@ -724,7 +704,7 @@ export const QueryAllNFTSchemaResponse = {
     const obj: any = {};
     if (message.nFTSchema) {
       obj.nFTSchema = message.nFTSchema.map((e) =>
-        e ? NFTSchema.toJSON(e) : undefined
+        e ? NFTSchemaQueryResult.toJSON(e) : undefined
       );
     } else {
       obj.nFTSchema = [];
@@ -745,7 +725,7 @@ export const QueryAllNFTSchemaResponse = {
     message.nFTSchema = [];
     if (object.nFTSchema !== undefined && object.nFTSchema !== null) {
       for (const e of object.nFTSchema) {
-        message.nFTSchema.push(NFTSchema.fromPartial(e));
+        message.nFTSchema.push(NFTSchemaQueryResult.fromPartial(e));
       }
     }
     if (object.pagination !== undefined && object.pagination !== null) {
@@ -3402,15 +3382,18 @@ export const QueryGetSchemaAttributeResponse = {
   },
 };
 
-const baseQueryAllSchemaAttributeRequest: object = {};
+const baseQueryAllSchemaAttributeRequest: object = { nftSchemaCode: "" };
 
 export const QueryAllSchemaAttributeRequest = {
   encode(
     message: QueryAllSchemaAttributeRequest,
     writer: Writer = Writer.create()
   ): Writer {
+    if (message.nftSchemaCode !== "") {
+      writer.uint32(10).string(message.nftSchemaCode);
+    }
     if (message.pagination !== undefined) {
-      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
+      PageRequest.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -3428,6 +3411,9 @@ export const QueryAllSchemaAttributeRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          message.nftSchemaCode = reader.string();
+          break;
+        case 2:
           message.pagination = PageRequest.decode(reader, reader.uint32());
           break;
         default:
@@ -3442,6 +3428,11 @@ export const QueryAllSchemaAttributeRequest = {
     const message = {
       ...baseQueryAllSchemaAttributeRequest,
     } as QueryAllSchemaAttributeRequest;
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = String(object.nftSchemaCode);
+    } else {
+      message.nftSchemaCode = "";
+    }
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromJSON(object.pagination);
     } else {
@@ -3452,6 +3443,8 @@ export const QueryAllSchemaAttributeRequest = {
 
   toJSON(message: QueryAllSchemaAttributeRequest): unknown {
     const obj: any = {};
+    message.nftSchemaCode !== undefined &&
+      (obj.nftSchemaCode = message.nftSchemaCode);
     message.pagination !== undefined &&
       (obj.pagination = message.pagination
         ? PageRequest.toJSON(message.pagination)
@@ -3465,6 +3458,11 @@ export const QueryAllSchemaAttributeRequest = {
     const message = {
       ...baseQueryAllSchemaAttributeRequest,
     } as QueryAllSchemaAttributeRequest;
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = object.nftSchemaCode;
+    } else {
+      message.nftSchemaCode = "";
+    }
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -4588,15 +4586,18 @@ export const QueryGetVirtualActionResponse = {
   },
 };
 
-const baseQueryAllVirtualActionRequest: object = {};
+const baseQueryAllVirtualActionRequest: object = { nftSchemaCode: "" };
 
 export const QueryAllVirtualActionRequest = {
   encode(
     message: QueryAllVirtualActionRequest,
     writer: Writer = Writer.create()
   ): Writer {
+    if (message.nftSchemaCode !== "") {
+      writer.uint32(10).string(message.nftSchemaCode);
+    }
     if (message.pagination !== undefined) {
-      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
+      PageRequest.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -4614,6 +4615,9 @@ export const QueryAllVirtualActionRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
+          message.nftSchemaCode = reader.string();
+          break;
+        case 2:
           message.pagination = PageRequest.decode(reader, reader.uint32());
           break;
         default:
@@ -4628,6 +4632,11 @@ export const QueryAllVirtualActionRequest = {
     const message = {
       ...baseQueryAllVirtualActionRequest,
     } as QueryAllVirtualActionRequest;
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = String(object.nftSchemaCode);
+    } else {
+      message.nftSchemaCode = "";
+    }
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromJSON(object.pagination);
     } else {
@@ -4638,6 +4647,8 @@ export const QueryAllVirtualActionRequest = {
 
   toJSON(message: QueryAllVirtualActionRequest): unknown {
     const obj: any = {};
+    message.nftSchemaCode !== undefined &&
+      (obj.nftSchemaCode = message.nftSchemaCode);
     message.pagination !== undefined &&
       (obj.pagination = message.pagination
         ? PageRequest.toJSON(message.pagination)
@@ -4651,6 +4662,11 @@ export const QueryAllVirtualActionRequest = {
     const message = {
       ...baseQueryAllVirtualActionRequest,
     } as QueryAllVirtualActionRequest;
+    if (object.nftSchemaCode !== undefined && object.nftSchemaCode !== null) {
+      message.nftSchemaCode = object.nftSchemaCode;
+    } else {
+      message.nftSchemaCode = "";
+    }
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -5083,344 +5099,6 @@ export const QueryAllVirtualSchemaResponse = {
   },
 };
 
-const baseQueryGetDisableVirtualSchemaRequest: object = { index: "" };
-
-export const QueryGetDisableVirtualSchemaRequest = {
-  encode(
-    message: QueryGetDisableVirtualSchemaRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.index !== "") {
-      writer.uint32(10).string(message.index);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryGetDisableVirtualSchemaRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaRequest,
-    } as QueryGetDisableVirtualSchemaRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.index = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryGetDisableVirtualSchemaRequest {
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaRequest,
-    } as QueryGetDisableVirtualSchemaRequest;
-    if (object.index !== undefined && object.index !== null) {
-      message.index = String(object.index);
-    } else {
-      message.index = "";
-    }
-    return message;
-  },
-
-  toJSON(message: QueryGetDisableVirtualSchemaRequest): unknown {
-    const obj: any = {};
-    message.index !== undefined && (obj.index = message.index);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryGetDisableVirtualSchemaRequest>
-  ): QueryGetDisableVirtualSchemaRequest {
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaRequest,
-    } as QueryGetDisableVirtualSchemaRequest;
-    if (object.index !== undefined && object.index !== null) {
-      message.index = object.index;
-    } else {
-      message.index = "";
-    }
-    return message;
-  },
-};
-
-const baseQueryGetDisableVirtualSchemaResponse: object = {};
-
-export const QueryGetDisableVirtualSchemaResponse = {
-  encode(
-    message: QueryGetDisableVirtualSchemaResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.disableVirtualSchema !== undefined) {
-      DisableVirtualSchema.encode(
-        message.disableVirtualSchema,
-        writer.uint32(10).fork()
-      ).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryGetDisableVirtualSchemaResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaResponse,
-    } as QueryGetDisableVirtualSchemaResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.disableVirtualSchema = DisableVirtualSchema.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryGetDisableVirtualSchemaResponse {
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaResponse,
-    } as QueryGetDisableVirtualSchemaResponse;
-    if (
-      object.disableVirtualSchema !== undefined &&
-      object.disableVirtualSchema !== null
-    ) {
-      message.disableVirtualSchema = DisableVirtualSchema.fromJSON(
-        object.disableVirtualSchema
-      );
-    } else {
-      message.disableVirtualSchema = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryGetDisableVirtualSchemaResponse): unknown {
-    const obj: any = {};
-    message.disableVirtualSchema !== undefined &&
-      (obj.disableVirtualSchema = message.disableVirtualSchema
-        ? DisableVirtualSchema.toJSON(message.disableVirtualSchema)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryGetDisableVirtualSchemaResponse>
-  ): QueryGetDisableVirtualSchemaResponse {
-    const message = {
-      ...baseQueryGetDisableVirtualSchemaResponse,
-    } as QueryGetDisableVirtualSchemaResponse;
-    if (
-      object.disableVirtualSchema !== undefined &&
-      object.disableVirtualSchema !== null
-    ) {
-      message.disableVirtualSchema = DisableVirtualSchema.fromPartial(
-        object.disableVirtualSchema
-      );
-    } else {
-      message.disableVirtualSchema = undefined;
-    }
-    return message;
-  },
-};
-
-const baseQueryAllDisableVirtualSchemaRequest: object = {};
-
-export const QueryAllDisableVirtualSchemaRequest = {
-  encode(
-    message: QueryAllDisableVirtualSchemaRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.pagination !== undefined) {
-      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryAllDisableVirtualSchemaRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaRequest,
-    } as QueryAllDisableVirtualSchemaRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.pagination = PageRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryAllDisableVirtualSchemaRequest {
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaRequest,
-    } as QueryAllDisableVirtualSchemaRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryAllDisableVirtualSchemaRequest): unknown {
-    const obj: any = {};
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryAllDisableVirtualSchemaRequest>
-  ): QueryAllDisableVirtualSchemaRequest {
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaRequest,
-    } as QueryAllDisableVirtualSchemaRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-};
-
-const baseQueryAllDisableVirtualSchemaResponse: object = {};
-
-export const QueryAllDisableVirtualSchemaResponse = {
-  encode(
-    message: QueryAllDisableVirtualSchemaResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    for (const v of message.disableVirtualSchema) {
-      DisableVirtualSchema.encode(v!, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.pagination !== undefined) {
-      PageResponse.encode(
-        message.pagination,
-        writer.uint32(18).fork()
-      ).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryAllDisableVirtualSchemaResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaResponse,
-    } as QueryAllDisableVirtualSchemaResponse;
-    message.disableVirtualSchema = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.disableVirtualSchema.push(
-            DisableVirtualSchema.decode(reader, reader.uint32())
-          );
-          break;
-        case 2:
-          message.pagination = PageResponse.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryAllDisableVirtualSchemaResponse {
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaResponse,
-    } as QueryAllDisableVirtualSchemaResponse;
-    message.disableVirtualSchema = [];
-    if (
-      object.disableVirtualSchema !== undefined &&
-      object.disableVirtualSchema !== null
-    ) {
-      for (const e of object.disableVirtualSchema) {
-        message.disableVirtualSchema.push(DisableVirtualSchema.fromJSON(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryAllDisableVirtualSchemaResponse): unknown {
-    const obj: any = {};
-    if (message.disableVirtualSchema) {
-      obj.disableVirtualSchema = message.disableVirtualSchema.map((e) =>
-        e ? DisableVirtualSchema.toJSON(e) : undefined
-      );
-    } else {
-      obj.disableVirtualSchema = [];
-    }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryAllDisableVirtualSchemaResponse>
-  ): QueryAllDisableVirtualSchemaResponse {
-    const message = {
-      ...baseQueryAllDisableVirtualSchemaResponse,
-    } as QueryAllDisableVirtualSchemaResponse;
-    message.disableVirtualSchema = [];
-    if (
-      object.disableVirtualSchema !== undefined &&
-      object.disableVirtualSchema !== null
-    ) {
-      for (const e of object.disableVirtualSchema) {
-        message.disableVirtualSchema.push(DisableVirtualSchema.fromPartial(e));
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-};
-
 const baseQueryGetVirtualSchemaProposalRequest: object = { index: "" };
 
 export const QueryGetVirtualSchemaProposalRequest = {
@@ -5761,11 +5439,151 @@ export const QueryAllVirtualSchemaProposalResponse = {
   },
 };
 
-const baseQueryGetActiveVirtualSchemaProposalRequest: object = { index: "" };
+const baseQueryListActiveProposalRequest: object = {};
 
-export const QueryGetActiveVirtualSchemaProposalRequest = {
+export const QueryListActiveProposalRequest = {
   encode(
-    message: QueryGetActiveVirtualSchemaProposalRequest,
+    _: QueryListActiveProposalRequest,
+    writer: Writer = Writer.create()
+  ): Writer {
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): QueryListActiveProposalRequest {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseQueryListActiveProposalRequest,
+    } as QueryListActiveProposalRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): QueryListActiveProposalRequest {
+    const message = {
+      ...baseQueryListActiveProposalRequest,
+    } as QueryListActiveProposalRequest;
+    return message;
+  },
+
+  toJSON(_: QueryListActiveProposalRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<QueryListActiveProposalRequest>
+  ): QueryListActiveProposalRequest {
+    const message = {
+      ...baseQueryListActiveProposalRequest,
+    } as QueryListActiveProposalRequest;
+    return message;
+  },
+};
+
+const baseQueryListActiveProposalResponse: object = {};
+
+export const QueryListActiveProposalResponse = {
+  encode(
+    message: QueryListActiveProposalResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    for (const v of message.virtualSchemaProposal) {
+      VirtualSchemaProposal.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(
+    input: Reader | Uint8Array,
+    length?: number
+  ): QueryListActiveProposalResponse {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseQueryListActiveProposalResponse,
+    } as QueryListActiveProposalResponse;
+    message.virtualSchemaProposal = [];
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.virtualSchemaProposal.push(
+            VirtualSchemaProposal.decode(reader, reader.uint32())
+          );
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryListActiveProposalResponse {
+    const message = {
+      ...baseQueryListActiveProposalResponse,
+    } as QueryListActiveProposalResponse;
+    message.virtualSchemaProposal = [];
+    if (
+      object.virtualSchemaProposal !== undefined &&
+      object.virtualSchemaProposal !== null
+    ) {
+      for (const e of object.virtualSchemaProposal) {
+        message.virtualSchemaProposal.push(VirtualSchemaProposal.fromJSON(e));
+      }
+    }
+    return message;
+  },
+
+  toJSON(message: QueryListActiveProposalResponse): unknown {
+    const obj: any = {};
+    if (message.virtualSchemaProposal) {
+      obj.virtualSchemaProposal = message.virtualSchemaProposal.map((e) =>
+        e ? VirtualSchemaProposal.toJSON(e) : undefined
+      );
+    } else {
+      obj.virtualSchemaProposal = [];
+    }
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<QueryListActiveProposalResponse>
+  ): QueryListActiveProposalResponse {
+    const message = {
+      ...baseQueryListActiveProposalResponse,
+    } as QueryListActiveProposalResponse;
+    message.virtualSchemaProposal = [];
+    if (
+      object.virtualSchemaProposal !== undefined &&
+      object.virtualSchemaProposal !== null
+    ) {
+      for (const e of object.virtualSchemaProposal) {
+        message.virtualSchemaProposal.push(
+          VirtualSchemaProposal.fromPartial(e)
+        );
+      }
+    }
+    return message;
+  },
+};
+
+const baseQueryGetLockSchemaFeeRequest: object = { index: "" };
+
+export const QueryGetLockSchemaFeeRequest = {
+  encode(
+    message: QueryGetLockSchemaFeeRequest,
     writer: Writer = Writer.create()
   ): Writer {
     if (message.index !== "") {
@@ -5777,12 +5595,12 @@ export const QueryGetActiveVirtualSchemaProposalRequest = {
   decode(
     input: Reader | Uint8Array,
     length?: number
-  ): QueryGetActiveVirtualSchemaProposalRequest {
+  ): QueryGetLockSchemaFeeRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalRequest,
-    } as QueryGetActiveVirtualSchemaProposalRequest;
+      ...baseQueryGetLockSchemaFeeRequest,
+    } as QueryGetLockSchemaFeeRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -5797,10 +5615,10 @@ export const QueryGetActiveVirtualSchemaProposalRequest = {
     return message;
   },
 
-  fromJSON(object: any): QueryGetActiveVirtualSchemaProposalRequest {
+  fromJSON(object: any): QueryGetLockSchemaFeeRequest {
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalRequest,
-    } as QueryGetActiveVirtualSchemaProposalRequest;
+      ...baseQueryGetLockSchemaFeeRequest,
+    } as QueryGetLockSchemaFeeRequest;
     if (object.index !== undefined && object.index !== null) {
       message.index = String(object.index);
     } else {
@@ -5809,18 +5627,18 @@ export const QueryGetActiveVirtualSchemaProposalRequest = {
     return message;
   },
 
-  toJSON(message: QueryGetActiveVirtualSchemaProposalRequest): unknown {
+  toJSON(message: QueryGetLockSchemaFeeRequest): unknown {
     const obj: any = {};
     message.index !== undefined && (obj.index = message.index);
     return obj;
   },
 
   fromPartial(
-    object: DeepPartial<QueryGetActiveVirtualSchemaProposalRequest>
-  ): QueryGetActiveVirtualSchemaProposalRequest {
+    object: DeepPartial<QueryGetLockSchemaFeeRequest>
+  ): QueryGetLockSchemaFeeRequest {
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalRequest,
-    } as QueryGetActiveVirtualSchemaProposalRequest;
+      ...baseQueryGetLockSchemaFeeRequest,
+    } as QueryGetLockSchemaFeeRequest;
     if (object.index !== undefined && object.index !== null) {
       message.index = object.index;
     } else {
@@ -5830,16 +5648,16 @@ export const QueryGetActiveVirtualSchemaProposalRequest = {
   },
 };
 
-const baseQueryGetActiveVirtualSchemaProposalResponse: object = {};
+const baseQueryGetLockSchemaFeeResponse: object = {};
 
-export const QueryGetActiveVirtualSchemaProposalResponse = {
+export const QueryGetLockSchemaFeeResponse = {
   encode(
-    message: QueryGetActiveVirtualSchemaProposalResponse,
+    message: QueryGetLockSchemaFeeResponse,
     writer: Writer = Writer.create()
   ): Writer {
-    if (message.activeVirtualSchemaProposal !== undefined) {
-      ActiveVirtualSchemaProposal.encode(
-        message.activeVirtualSchemaProposal,
+    if (message.lockSchemaFee !== undefined) {
+      LockSchemaFee.encode(
+        message.lockSchemaFee,
         writer.uint32(10).fork()
       ).ldelim();
     }
@@ -5849,20 +5667,17 @@ export const QueryGetActiveVirtualSchemaProposalResponse = {
   decode(
     input: Reader | Uint8Array,
     length?: number
-  ): QueryGetActiveVirtualSchemaProposalResponse {
+  ): QueryGetLockSchemaFeeResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalResponse,
-    } as QueryGetActiveVirtualSchemaProposalResponse;
+      ...baseQueryGetLockSchemaFeeResponse,
+    } as QueryGetLockSchemaFeeResponse;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.activeVirtualSchemaProposal = ActiveVirtualSchemaProposal.decode(
-            reader,
-            reader.uint32()
-          );
+          message.lockSchemaFee = LockSchemaFee.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -5872,59 +5687,47 @@ export const QueryGetActiveVirtualSchemaProposalResponse = {
     return message;
   },
 
-  fromJSON(object: any): QueryGetActiveVirtualSchemaProposalResponse {
+  fromJSON(object: any): QueryGetLockSchemaFeeResponse {
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalResponse,
-    } as QueryGetActiveVirtualSchemaProposalResponse;
-    if (
-      object.activeVirtualSchemaProposal !== undefined &&
-      object.activeVirtualSchemaProposal !== null
-    ) {
-      message.activeVirtualSchemaProposal = ActiveVirtualSchemaProposal.fromJSON(
-        object.activeVirtualSchemaProposal
-      );
+      ...baseQueryGetLockSchemaFeeResponse,
+    } as QueryGetLockSchemaFeeResponse;
+    if (object.lockSchemaFee !== undefined && object.lockSchemaFee !== null) {
+      message.lockSchemaFee = LockSchemaFee.fromJSON(object.lockSchemaFee);
     } else {
-      message.activeVirtualSchemaProposal = undefined;
+      message.lockSchemaFee = undefined;
     }
     return message;
   },
 
-  toJSON(message: QueryGetActiveVirtualSchemaProposalResponse): unknown {
+  toJSON(message: QueryGetLockSchemaFeeResponse): unknown {
     const obj: any = {};
-    message.activeVirtualSchemaProposal !== undefined &&
-      (obj.activeVirtualSchemaProposal = message.activeVirtualSchemaProposal
-        ? ActiveVirtualSchemaProposal.toJSON(
-            message.activeVirtualSchemaProposal
-          )
+    message.lockSchemaFee !== undefined &&
+      (obj.lockSchemaFee = message.lockSchemaFee
+        ? LockSchemaFee.toJSON(message.lockSchemaFee)
         : undefined);
     return obj;
   },
 
   fromPartial(
-    object: DeepPartial<QueryGetActiveVirtualSchemaProposalResponse>
-  ): QueryGetActiveVirtualSchemaProposalResponse {
+    object: DeepPartial<QueryGetLockSchemaFeeResponse>
+  ): QueryGetLockSchemaFeeResponse {
     const message = {
-      ...baseQueryGetActiveVirtualSchemaProposalResponse,
-    } as QueryGetActiveVirtualSchemaProposalResponse;
-    if (
-      object.activeVirtualSchemaProposal !== undefined &&
-      object.activeVirtualSchemaProposal !== null
-    ) {
-      message.activeVirtualSchemaProposal = ActiveVirtualSchemaProposal.fromPartial(
-        object.activeVirtualSchemaProposal
-      );
+      ...baseQueryGetLockSchemaFeeResponse,
+    } as QueryGetLockSchemaFeeResponse;
+    if (object.lockSchemaFee !== undefined && object.lockSchemaFee !== null) {
+      message.lockSchemaFee = LockSchemaFee.fromPartial(object.lockSchemaFee);
     } else {
-      message.activeVirtualSchemaProposal = undefined;
+      message.lockSchemaFee = undefined;
     }
     return message;
   },
 };
 
-const baseQueryAllActiveVirtualSchemaProposalRequest: object = {};
+const baseQueryAllLockSchemaFeeRequest: object = {};
 
-export const QueryAllActiveVirtualSchemaProposalRequest = {
+export const QueryAllLockSchemaFeeRequest = {
   encode(
-    message: QueryAllActiveVirtualSchemaProposalRequest,
+    message: QueryAllLockSchemaFeeRequest,
     writer: Writer = Writer.create()
   ): Writer {
     if (message.pagination !== undefined) {
@@ -5936,12 +5739,12 @@ export const QueryAllActiveVirtualSchemaProposalRequest = {
   decode(
     input: Reader | Uint8Array,
     length?: number
-  ): QueryAllActiveVirtualSchemaProposalRequest {
+  ): QueryAllLockSchemaFeeRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalRequest,
-    } as QueryAllActiveVirtualSchemaProposalRequest;
+      ...baseQueryAllLockSchemaFeeRequest,
+    } as QueryAllLockSchemaFeeRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -5956,10 +5759,10 @@ export const QueryAllActiveVirtualSchemaProposalRequest = {
     return message;
   },
 
-  fromJSON(object: any): QueryAllActiveVirtualSchemaProposalRequest {
+  fromJSON(object: any): QueryAllLockSchemaFeeRequest {
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalRequest,
-    } as QueryAllActiveVirtualSchemaProposalRequest;
+      ...baseQueryAllLockSchemaFeeRequest,
+    } as QueryAllLockSchemaFeeRequest;
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromJSON(object.pagination);
     } else {
@@ -5968,7 +5771,7 @@ export const QueryAllActiveVirtualSchemaProposalRequest = {
     return message;
   },
 
-  toJSON(message: QueryAllActiveVirtualSchemaProposalRequest): unknown {
+  toJSON(message: QueryAllLockSchemaFeeRequest): unknown {
     const obj: any = {};
     message.pagination !== undefined &&
       (obj.pagination = message.pagination
@@ -5978,11 +5781,11 @@ export const QueryAllActiveVirtualSchemaProposalRequest = {
   },
 
   fromPartial(
-    object: DeepPartial<QueryAllActiveVirtualSchemaProposalRequest>
-  ): QueryAllActiveVirtualSchemaProposalRequest {
+    object: DeepPartial<QueryAllLockSchemaFeeRequest>
+  ): QueryAllLockSchemaFeeRequest {
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalRequest,
-    } as QueryAllActiveVirtualSchemaProposalRequest;
+      ...baseQueryAllLockSchemaFeeRequest,
+    } as QueryAllLockSchemaFeeRequest;
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination);
     } else {
@@ -5992,15 +5795,15 @@ export const QueryAllActiveVirtualSchemaProposalRequest = {
   },
 };
 
-const baseQueryAllActiveVirtualSchemaProposalResponse: object = {};
+const baseQueryAllLockSchemaFeeResponse: object = {};
 
-export const QueryAllActiveVirtualSchemaProposalResponse = {
+export const QueryAllLockSchemaFeeResponse = {
   encode(
-    message: QueryAllActiveVirtualSchemaProposalResponse,
+    message: QueryAllLockSchemaFeeResponse,
     writer: Writer = Writer.create()
   ): Writer {
-    for (const v of message.activeVirtualSchemaProposal) {
-      ActiveVirtualSchemaProposal.encode(v!, writer.uint32(10).fork()).ldelim();
+    for (const v of message.lockSchemaFee) {
+      LockSchemaFee.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     if (message.pagination !== undefined) {
       PageResponse.encode(
@@ -6014,19 +5817,19 @@ export const QueryAllActiveVirtualSchemaProposalResponse = {
   decode(
     input: Reader | Uint8Array,
     length?: number
-  ): QueryAllActiveVirtualSchemaProposalResponse {
+  ): QueryAllLockSchemaFeeResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalResponse,
-    } as QueryAllActiveVirtualSchemaProposalResponse;
-    message.activeVirtualSchemaProposal = [];
+      ...baseQueryAllLockSchemaFeeResponse,
+    } as QueryAllLockSchemaFeeResponse;
+    message.lockSchemaFee = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.activeVirtualSchemaProposal.push(
-            ActiveVirtualSchemaProposal.decode(reader, reader.uint32())
+          message.lockSchemaFee.push(
+            LockSchemaFee.decode(reader, reader.uint32())
           );
           break;
         case 2:
@@ -6040,19 +5843,14 @@ export const QueryAllActiveVirtualSchemaProposalResponse = {
     return message;
   },
 
-  fromJSON(object: any): QueryAllActiveVirtualSchemaProposalResponse {
+  fromJSON(object: any): QueryAllLockSchemaFeeResponse {
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalResponse,
-    } as QueryAllActiveVirtualSchemaProposalResponse;
-    message.activeVirtualSchemaProposal = [];
-    if (
-      object.activeVirtualSchemaProposal !== undefined &&
-      object.activeVirtualSchemaProposal !== null
-    ) {
-      for (const e of object.activeVirtualSchemaProposal) {
-        message.activeVirtualSchemaProposal.push(
-          ActiveVirtualSchemaProposal.fromJSON(e)
-        );
+      ...baseQueryAllLockSchemaFeeResponse,
+    } as QueryAllLockSchemaFeeResponse;
+    message.lockSchemaFee = [];
+    if (object.lockSchemaFee !== undefined && object.lockSchemaFee !== null) {
+      for (const e of object.lockSchemaFee) {
+        message.lockSchemaFee.push(LockSchemaFee.fromJSON(e));
       }
     }
     if (object.pagination !== undefined && object.pagination !== null) {
@@ -6063,14 +5861,14 @@ export const QueryAllActiveVirtualSchemaProposalResponse = {
     return message;
   },
 
-  toJSON(message: QueryAllActiveVirtualSchemaProposalResponse): unknown {
+  toJSON(message: QueryAllLockSchemaFeeResponse): unknown {
     const obj: any = {};
-    if (message.activeVirtualSchemaProposal) {
-      obj.activeVirtualSchemaProposal = message.activeVirtualSchemaProposal.map(
-        (e) => (e ? ActiveVirtualSchemaProposal.toJSON(e) : undefined)
+    if (message.lockSchemaFee) {
+      obj.lockSchemaFee = message.lockSchemaFee.map((e) =>
+        e ? LockSchemaFee.toJSON(e) : undefined
       );
     } else {
-      obj.activeVirtualSchemaProposal = [];
+      obj.lockSchemaFee = [];
     }
     message.pagination !== undefined &&
       (obj.pagination = message.pagination
@@ -6080,367 +5878,15 @@ export const QueryAllActiveVirtualSchemaProposalResponse = {
   },
 
   fromPartial(
-    object: DeepPartial<QueryAllActiveVirtualSchemaProposalResponse>
-  ): QueryAllActiveVirtualSchemaProposalResponse {
+    object: DeepPartial<QueryAllLockSchemaFeeResponse>
+  ): QueryAllLockSchemaFeeResponse {
     const message = {
-      ...baseQueryAllActiveVirtualSchemaProposalResponse,
-    } as QueryAllActiveVirtualSchemaProposalResponse;
-    message.activeVirtualSchemaProposal = [];
-    if (
-      object.activeVirtualSchemaProposal !== undefined &&
-      object.activeVirtualSchemaProposal !== null
-    ) {
-      for (const e of object.activeVirtualSchemaProposal) {
-        message.activeVirtualSchemaProposal.push(
-          ActiveVirtualSchemaProposal.fromPartial(e)
-        );
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-};
-
-const baseQueryGetInactiveVirtualSchemaProposalRequest: object = { index: "" };
-
-export const QueryGetInactiveVirtualSchemaProposalRequest = {
-  encode(
-    message: QueryGetInactiveVirtualSchemaProposalRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.index !== "") {
-      writer.uint32(10).string(message.index);
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryGetInactiveVirtualSchemaProposalRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalRequest,
-    } as QueryGetInactiveVirtualSchemaProposalRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.index = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryGetInactiveVirtualSchemaProposalRequest {
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalRequest,
-    } as QueryGetInactiveVirtualSchemaProposalRequest;
-    if (object.index !== undefined && object.index !== null) {
-      message.index = String(object.index);
-    } else {
-      message.index = "";
-    }
-    return message;
-  },
-
-  toJSON(message: QueryGetInactiveVirtualSchemaProposalRequest): unknown {
-    const obj: any = {};
-    message.index !== undefined && (obj.index = message.index);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryGetInactiveVirtualSchemaProposalRequest>
-  ): QueryGetInactiveVirtualSchemaProposalRequest {
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalRequest,
-    } as QueryGetInactiveVirtualSchemaProposalRequest;
-    if (object.index !== undefined && object.index !== null) {
-      message.index = object.index;
-    } else {
-      message.index = "";
-    }
-    return message;
-  },
-};
-
-const baseQueryGetInactiveVirtualSchemaProposalResponse: object = {};
-
-export const QueryGetInactiveVirtualSchemaProposalResponse = {
-  encode(
-    message: QueryGetInactiveVirtualSchemaProposalResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.inactiveVirtualSchemaProposal !== undefined) {
-      InactiveVirtualSchemaProposal.encode(
-        message.inactiveVirtualSchemaProposal,
-        writer.uint32(10).fork()
-      ).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryGetInactiveVirtualSchemaProposalResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalResponse,
-    } as QueryGetInactiveVirtualSchemaProposalResponse;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.inactiveVirtualSchemaProposal = InactiveVirtualSchemaProposal.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryGetInactiveVirtualSchemaProposalResponse {
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalResponse,
-    } as QueryGetInactiveVirtualSchemaProposalResponse;
-    if (
-      object.inactiveVirtualSchemaProposal !== undefined &&
-      object.inactiveVirtualSchemaProposal !== null
-    ) {
-      message.inactiveVirtualSchemaProposal = InactiveVirtualSchemaProposal.fromJSON(
-        object.inactiveVirtualSchemaProposal
-      );
-    } else {
-      message.inactiveVirtualSchemaProposal = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryGetInactiveVirtualSchemaProposalResponse): unknown {
-    const obj: any = {};
-    message.inactiveVirtualSchemaProposal !== undefined &&
-      (obj.inactiveVirtualSchemaProposal = message.inactiveVirtualSchemaProposal
-        ? InactiveVirtualSchemaProposal.toJSON(
-            message.inactiveVirtualSchemaProposal
-          )
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryGetInactiveVirtualSchemaProposalResponse>
-  ): QueryGetInactiveVirtualSchemaProposalResponse {
-    const message = {
-      ...baseQueryGetInactiveVirtualSchemaProposalResponse,
-    } as QueryGetInactiveVirtualSchemaProposalResponse;
-    if (
-      object.inactiveVirtualSchemaProposal !== undefined &&
-      object.inactiveVirtualSchemaProposal !== null
-    ) {
-      message.inactiveVirtualSchemaProposal = InactiveVirtualSchemaProposal.fromPartial(
-        object.inactiveVirtualSchemaProposal
-      );
-    } else {
-      message.inactiveVirtualSchemaProposal = undefined;
-    }
-    return message;
-  },
-};
-
-const baseQueryAllInactiveVirtualSchemaProposalRequest: object = {};
-
-export const QueryAllInactiveVirtualSchemaProposalRequest = {
-  encode(
-    message: QueryAllInactiveVirtualSchemaProposalRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
-    if (message.pagination !== undefined) {
-      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryAllInactiveVirtualSchemaProposalRequest {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalRequest,
-    } as QueryAllInactiveVirtualSchemaProposalRequest;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.pagination = PageRequest.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryAllInactiveVirtualSchemaProposalRequest {
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalRequest,
-    } as QueryAllInactiveVirtualSchemaProposalRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryAllInactiveVirtualSchemaProposalRequest): unknown {
-    const obj: any = {};
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryAllInactiveVirtualSchemaProposalRequest>
-  ): QueryAllInactiveVirtualSchemaProposalRequest {
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalRequest,
-    } as QueryAllInactiveVirtualSchemaProposalRequest;
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageRequest.fromPartial(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-};
-
-const baseQueryAllInactiveVirtualSchemaProposalResponse: object = {};
-
-export const QueryAllInactiveVirtualSchemaProposalResponse = {
-  encode(
-    message: QueryAllInactiveVirtualSchemaProposalResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
-    for (const v of message.inactiveVirtualSchemaProposal) {
-      InactiveVirtualSchemaProposal.encode(
-        v!,
-        writer.uint32(10).fork()
-      ).ldelim();
-    }
-    if (message.pagination !== undefined) {
-      PageResponse.encode(
-        message.pagination,
-        writer.uint32(18).fork()
-      ).ldelim();
-    }
-    return writer;
-  },
-
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryAllInactiveVirtualSchemaProposalResponse {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input;
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalResponse,
-    } as QueryAllInactiveVirtualSchemaProposalResponse;
-    message.inactiveVirtualSchemaProposal = [];
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.inactiveVirtualSchemaProposal.push(
-            InactiveVirtualSchemaProposal.decode(reader, reader.uint32())
-          );
-          break;
-        case 2:
-          message.pagination = PageResponse.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): QueryAllInactiveVirtualSchemaProposalResponse {
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalResponse,
-    } as QueryAllInactiveVirtualSchemaProposalResponse;
-    message.inactiveVirtualSchemaProposal = [];
-    if (
-      object.inactiveVirtualSchemaProposal !== undefined &&
-      object.inactiveVirtualSchemaProposal !== null
-    ) {
-      for (const e of object.inactiveVirtualSchemaProposal) {
-        message.inactiveVirtualSchemaProposal.push(
-          InactiveVirtualSchemaProposal.fromJSON(e)
-        );
-      }
-    }
-    if (object.pagination !== undefined && object.pagination !== null) {
-      message.pagination = PageResponse.fromJSON(object.pagination);
-    } else {
-      message.pagination = undefined;
-    }
-    return message;
-  },
-
-  toJSON(message: QueryAllInactiveVirtualSchemaProposalResponse): unknown {
-    const obj: any = {};
-    if (message.inactiveVirtualSchemaProposal) {
-      obj.inactiveVirtualSchemaProposal = message.inactiveVirtualSchemaProposal.map(
-        (e) => (e ? InactiveVirtualSchemaProposal.toJSON(e) : undefined)
-      );
-    } else {
-      obj.inactiveVirtualSchemaProposal = [];
-    }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined);
-    return obj;
-  },
-
-  fromPartial(
-    object: DeepPartial<QueryAllInactiveVirtualSchemaProposalResponse>
-  ): QueryAllInactiveVirtualSchemaProposalResponse {
-    const message = {
-      ...baseQueryAllInactiveVirtualSchemaProposalResponse,
-    } as QueryAllInactiveVirtualSchemaProposalResponse;
-    message.inactiveVirtualSchemaProposal = [];
-    if (
-      object.inactiveVirtualSchemaProposal !== undefined &&
-      object.inactiveVirtualSchemaProposal !== null
-    ) {
-      for (const e of object.inactiveVirtualSchemaProposal) {
-        message.inactiveVirtualSchemaProposal.push(
-          InactiveVirtualSchemaProposal.fromPartial(e)
-        );
+      ...baseQueryAllLockSchemaFeeResponse,
+    } as QueryAllLockSchemaFeeResponse;
+    message.lockSchemaFee = [];
+    if (object.lockSchemaFee !== undefined && object.lockSchemaFee !== null) {
+      for (const e of object.lockSchemaFee) {
+        message.lockSchemaFee.push(LockSchemaFee.fromPartial(e));
       }
     }
     if (object.pagination !== undefined && object.pagination !== null) {
@@ -6564,14 +6010,6 @@ export interface Query {
   VirtualSchemaAll(
     request: QueryAllVirtualSchemaRequest
   ): Promise<QueryAllVirtualSchemaResponse>;
-  /** Queries a DisableVirtualSchema by index. */
-  DisableVirtualSchema(
-    request: QueryGetDisableVirtualSchemaRequest
-  ): Promise<QueryGetDisableVirtualSchemaResponse>;
-  /** Queries a list of DisableVirtualSchema items. */
-  DisableVirtualSchemaAll(
-    request: QueryAllDisableVirtualSchemaRequest
-  ): Promise<QueryAllDisableVirtualSchemaResponse>;
   /** Queries a VirtualSchemaProposal by index. */
   VirtualSchemaProposal(
     request: QueryGetVirtualSchemaProposalRequest
@@ -6580,6 +6018,18 @@ export interface Query {
   VirtualSchemaProposalAll(
     request: QueryAllVirtualSchemaProposalRequest
   ): Promise<QueryAllVirtualSchemaProposalResponse>;
+  /** Queries a list of ListActiveProposal items. */
+  ListActiveProposal(
+    request: QueryListActiveProposalRequest
+  ): Promise<QueryListActiveProposalResponse>;
+  /** Queries a LockSchemaFee by index. */
+  LockSchemaFee(
+    request: QueryGetLockSchemaFeeRequest
+  ): Promise<QueryGetLockSchemaFeeResponse>;
+  /** Queries a list of LockSchemaFee items. */
+  LockSchemaFeeAll(
+    request: QueryAllLockSchemaFeeRequest
+  ): Promise<QueryAllLockSchemaFeeResponse>;
 }
 
 export class QueryClientImpl implements Query {
@@ -6987,34 +6437,6 @@ export class QueryClientImpl implements Query {
     );
   }
 
-  DisableVirtualSchema(
-    request: QueryGetDisableVirtualSchemaRequest
-  ): Promise<QueryGetDisableVirtualSchemaResponse> {
-    const data = QueryGetDisableVirtualSchemaRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Query",
-      "DisableVirtualSchema",
-      data
-    );
-    return promise.then((data) =>
-      QueryGetDisableVirtualSchemaResponse.decode(new Reader(data))
-    );
-  }
-
-  DisableVirtualSchemaAll(
-    request: QueryAllDisableVirtualSchemaRequest
-  ): Promise<QueryAllDisableVirtualSchemaResponse> {
-    const data = QueryAllDisableVirtualSchemaRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      "thesixnetwork.sixprotocol.nftmngr.Query",
-      "DisableVirtualSchemaAll",
-      data
-    );
-    return promise.then((data) =>
-      QueryAllDisableVirtualSchemaResponse.decode(new Reader(data))
-    );
-  }
-
   VirtualSchemaProposal(
     request: QueryGetVirtualSchemaProposalRequest
   ): Promise<QueryGetVirtualSchemaProposalResponse> {
@@ -7040,6 +6462,48 @@ export class QueryClientImpl implements Query {
     );
     return promise.then((data) =>
       QueryAllVirtualSchemaProposalResponse.decode(new Reader(data))
+    );
+  }
+
+  ListActiveProposal(
+    request: QueryListActiveProposalRequest
+  ): Promise<QueryListActiveProposalResponse> {
+    const data = QueryListActiveProposalRequest.encode(request).finish();
+    const promise = this.rpc.request(
+      "thesixnetwork.sixprotocol.nftmngr.Query",
+      "ListActiveProposal",
+      data
+    );
+    return promise.then((data) =>
+      QueryListActiveProposalResponse.decode(new Reader(data))
+    );
+  }
+
+  LockSchemaFee(
+    request: QueryGetLockSchemaFeeRequest
+  ): Promise<QueryGetLockSchemaFeeResponse> {
+    const data = QueryGetLockSchemaFeeRequest.encode(request).finish();
+    const promise = this.rpc.request(
+      "thesixnetwork.sixprotocol.nftmngr.Query",
+      "LockSchemaFee",
+      data
+    );
+    return promise.then((data) =>
+      QueryGetLockSchemaFeeResponse.decode(new Reader(data))
+    );
+  }
+
+  LockSchemaFeeAll(
+    request: QueryAllLockSchemaFeeRequest
+  ): Promise<QueryAllLockSchemaFeeResponse> {
+    const data = QueryAllLockSchemaFeeRequest.encode(request).finish();
+    const promise = this.rpc.request(
+      "thesixnetwork.sixprotocol.nftmngr.Query",
+      "LockSchemaFeeAll",
+      data
+    );
+    return promise.then((data) =>
+      QueryAllLockSchemaFeeResponse.decode(new Reader(data))
     );
   }
 }

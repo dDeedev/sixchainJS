@@ -1,11 +1,13 @@
 {
   "name": "@ddeedev/sixchain-client",
-  "version": "1.0.1",
+  "version": "1.0.6",
   "description": "SIX Protocol sdk",
   "author": "sixnetwork <hamdee@six.network>",
   "homepage": "https://github.com/thesixnetwork/sixchain-sdk",
   "license": "SEE LICENSE IN LICENSE",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.esm.js",
   "publishConfig": {
     "access": "public",
     "directory": "dist"

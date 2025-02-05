@@ -45,6 +45,32 @@ export function feeDistributionMethodToJSON(
   }
 }
 
+export enum FeeSubject {
+  CREATE_NFT_SCHEMA = 0,
+  UNRECOGNIZED = -1,
+}
+
+export function feeSubjectFromJSON(object: any): FeeSubject {
+  switch (object) {
+    case 0:
+    case "CREATE_NFT_SCHEMA":
+      return FeeSubject.CREATE_NFT_SCHEMA;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return FeeSubject.UNRECOGNIZED;
+  }
+}
+
+export function feeSubjectToJSON(object: FeeSubject): string {
+  switch (object) {
+    case FeeSubject.CREATE_NFT_SCHEMA:
+      return "CREATE_NFT_SCHEMA";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 export interface FeeDistribution {
   method: FeeDistributionMethod;
   portion: number;
